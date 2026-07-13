@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useToast } from '@/lib/ui/toast';
 import { useAuth } from '@/lib/auth/context';
@@ -45,10 +45,25 @@ export function GiftEditor({ template, locale }: Props) {
   const { user } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const qrAfterAuth = useRef(false);
   const [savedSlug, setSavedSlug] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     return window.localStorage.getItem(SAVED_KEY(template.slug));
   });
+  // JSON snapshot of the payload at last save; lets us use the short ?s= link
+  // only while the local draft still matches what the server has.
+  const [savedPayload, setSavedPayload] = useState<string | null>(null);
+  const [fragment, setFragment] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    void encodeGift(stripEmpty(data)).then((f) => {
+      if (alive) setFragment(f);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [data]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -69,8 +84,12 @@ export function GiftEditor({ template, locale }: Props) {
     .every((f) => (data[f.key] || '').trim() !== '');
 
   const shareLink = () => {
-    const payload = stripEmpty(data);
-    return `${window.location.origin}/${locale}/g/${template.slug}#${encodeGift(payload)}`;
+    const base = `${window.location.origin}/${locale}/g/${template.slug}`;
+    // Saved and unchanged since: use the much shorter slug link (best for QR).
+    if (savedSlug && savedPayload === JSON.stringify(stripEmpty(data))) {
+      return `${base}?s=${savedSlug}`;
+    }
+    return `${base}#${fragment}`;
   };
 
   const onCopy = async () => {
@@ -86,13 +105,13 @@ export function GiftEditor({ template, locale }: Props) {
     window.open(shareLink(), '_blank', 'noopener');
   };
 
-  const doSave = async () => {
+  const doSave = async (): Promise<boolean> => {
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
     if (!token) {
       setAuthOpen(true);
-      return;
+      return false;
     }
     setSaving(true);
     try {
@@ -106,17 +125,18 @@ export function GiftEditor({ template, locale }: Props) {
 
       if (savedSlug) {
         const res = await fetch(`${base}/api/invitations/${savedSlug}`, {
-          method: 'POST',
+          method: 'PUT',
           headers,
           body: JSON.stringify({ title, data: payload }),
         });
         if (res.ok) {
+          setSavedPayload(JSON.stringify(payload));
           toast.show(t('saved'), { variant: 'success' });
-          return;
+          return true;
         }
         if (res.status !== 404) {
           toast.show(t('saveFail'), { variant: 'error' });
-          return;
+          return false;
         }
         // saved card no longer exists (or belongs to another account) — create a new one
       }
@@ -137,9 +157,10 @@ export function GiftEditor({ template, locale }: Props) {
         });
         if (res.ok) {
           setSavedSlug(slug);
+          setSavedPayload(JSON.stringify(payload));
           try { localStorage.setItem(SAVED_KEY(template.slug), slug); } catch { /* ignore */ }
           toast.show(t('saved'), { variant: 'success' });
-          return;
+          return true;
         }
         if (res.status !== 409) break;
       }
@@ -149,6 +170,7 @@ export function GiftEditor({ template, locale }: Props) {
     } finally {
       setSaving(false);
     }
+    return false;
   };
 
   const onSave = () => {
@@ -157,6 +179,24 @@ export function GiftEditor({ template, locale }: Props) {
       return;
     }
     void doSave();
+  };
+
+  const hasShortLink = () =>
+    Boolean(savedSlug) && savedPayload === JSON.stringify(stripEmpty(data));
+
+  // The QR always encodes the short ?s= link — a long hash link makes the code
+  // too dense for phone cameras — so save first when the draft isn't saved yet.
+  const onQr = async () => {
+    if (saving) return;
+    if (!hasShortLink()) {
+      if (!user) {
+        qrAfterAuth.current = true;
+        setAuthOpen(true);
+        return;
+      }
+      if (!(await doSave())) return;
+    }
+    setQrOpen(true);
   };
 
   const setField = (key: string, value: string) => {
@@ -248,8 +288,8 @@ export function GiftEditor({ template, locale }: Props) {
             <div className="flex-1" />
             <button
               type="button"
-              onClick={() => setQrOpen(true)}
-              disabled={!allRequiredFilled}
+              onClick={() => void onQr()}
+              disabled={!allRequiredFilled || saving}
               className="px-3 h-8 font-body text-xs rounded-pill border border-muted text-ink-2 hover:text-ink hover:border-ink-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {t('qr')}
@@ -297,7 +337,14 @@ export function GiftEditor({ template, locale }: Props) {
         <AuthModal
           mode="signUp"
           onClose={() => setAuthOpen(false)}
-          onSuccess={() => void doSave()}
+          onSuccess={() =>
+            void doSave().then((ok) => {
+              if (qrAfterAuth.current) {
+                qrAfterAuth.current = false;
+                if (ok) setQrOpen(true);
+              }
+            })
+          }
         />
       )}
       {qrOpen && (
@@ -367,6 +414,7 @@ function GiftFieldInput({
           onChange={(urls) => onChange(urls.join('\n'))}
           maxItems={field.maxItems ?? 4}
           fieldLabel={field.label}
+          slotHints={field.slotHints}
         />
         {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
       </div>

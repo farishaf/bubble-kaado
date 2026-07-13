@@ -95,23 +95,32 @@ function Stamp({ kind }: { kind: string }) {
   if (kind === 'none') return null;
   if (kind === 'original') {
     return (
-      <svg className="gift-stamp" width="76" height="76" viewBox="0 0 100 100" aria-hidden="true">
+      <svg className="gift-stamp" width="80" height="80" viewBox="0 0 100 100" aria-hidden="true">
         <defs>
-          <path id="gift-stamp-arc" d="M50,50 m-33,0 a33,33 0 1,1 66,0 a33,33 0 1,1 -66,0" />
+          {/* top arc: baseline on path, glyphs extend outward */}
+          <path id="gift-stamp-arc-top" d="M15.5,50 a34.5,34.5 0 0,1 69,0" />
+          {/* bottom arc drawn counter-clockwise so the text reads upright */}
+          <path id="gift-stamp-arc-bottom" d="M7,50 a43,43 0 0,0 86,0" />
         </defs>
-        <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="3" />
-        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 4" />
-        <text fontSize="11" letterSpacing="2.4" fill="currentColor" fontFamily="var(--font-body)">
-          <textPath href="#gift-stamp-arc" startOffset="0%">BEST QUALITY</textPath>
-          <textPath href="#gift-stamp-arc" startOffset="50%">BEST QUALITY</textPath>
+        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="3.5" />
+        <circle cx="50" cy="50" r="30" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <text fontSize="10" letterSpacing="1.5" fontWeight="600" fill="currentColor" fontFamily="var(--font-body)">
+          <textPath href="#gift-stamp-arc-top" startOffset="50%" textAnchor="middle">
+            · BEST QUALITY ·
+          </textPath>
+        </text>
+        <text fontSize="10" letterSpacing="1.5" fontWeight="600" fill="currentColor" fontFamily="var(--font-body)">
+          <textPath href="#gift-stamp-arc-bottom" startOffset="50%" textAnchor="middle">
+            · BEST QUALITY ·
+          </textPath>
         </text>
         <text
           x="50"
-          y="55"
+          y="55.5"
           textAnchor="middle"
-          fontSize="15"
-          fontWeight="700"
-          letterSpacing="1.5"
+          fontSize="16.5"
+          fontWeight="800"
+          letterSpacing="0.5"
           fill="currentColor"
           fontFamily="var(--font-body)"
         >
@@ -121,18 +130,19 @@ function Stamp({ kind }: { kind: string }) {
     );
   }
   return (
-    <svg className="gift-stamp" width="76" height="76" viewBox="0 0 100 100" aria-hidden="true">
+    <svg className="gift-stamp" width="80" height="80" viewBox="0 0 100 100" aria-hidden="true">
       <defs>
-        <path id="gift-stamp-love-arc" d="M50,54 m-35,0 a35,35 0 1,1 70,0 a35,35 0 1,1 -70,0" />
+        {/* counter-clockwise bottom arc: upright text inside the ring */}
+        <path id="gift-stamp-love-arc" d="M10,50 a40,40 0 0,0 80,0" />
       </defs>
+      <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="3.5" />
       <path
         d="M50 82 C30 66 16 54 16 38 C16 26 25 18 35 18 C41.5 18 47 21.4 50 26.6 C53 21.4 58.5 18 65 18 C75 18 84 26 84 38 C84 54 70 66 50 82 Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="5"
+        fill="currentColor"
+        transform="translate(50 39) scale(0.62) translate(-50 -50)"
       />
-      <text fontSize="12" letterSpacing="2.2" fontWeight="700" fill="currentColor" fontFamily="var(--font-body)">
-        <textPath href="#gift-stamp-love-arc" startOffset="25%" textAnchor="middle">
+      <text fontSize="11" letterSpacing="2" fontWeight="700" fill="currentColor" fontFamily="var(--font-body)">
+        <textPath href="#gift-stamp-love-arc" startOffset="50%" textAnchor="middle">
           MADE WITH LOVE
         </textPath>
       </text>
@@ -210,19 +220,26 @@ export function GiftLetter({
 
   const { contextSafe } = useGSAP(
     () => {
-      // Spread reveal (photo + text sheets) the first time the main face mounts.
+      // Book-opening reveal the first time the main face mounts: the two
+      // sheets unfold from the spine like the pages of a book.
       if (face !== 'main') mainRevealed.current = false;
       if (face === 'main' && !mainRevealed.current) {
         mainRevealed.current = true;
         if (!reduced()) {
-          const sheets = gsap.utils.toArray<HTMLElement>('.gift-sheet', rootRef.current);
+          const photosSheet = rootRef.current?.querySelector<HTMLElement>('.gift-sheet--photos');
+          const textSheet = rootRef.current?.querySelector<HTMLElement>('.gift-sheet--text');
           const frames = gsap.utils.toArray<HTMLElement>('.gift-frame', rootRef.current);
-          gsap.set(sheets, { opacity: 0, y: 18 });
+          const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+          if (photosSheet) {
+            gsap.set(photosSheet, { transformOrigin: '100% 50%', rotateY: 78, opacity: 0 });
+            tl.to(photosSheet, { rotateY: 0, opacity: 1, duration: 0.9 });
+          }
+          if (textSheet) {
+            gsap.set(textSheet, { transformOrigin: '0% 50%', rotateY: -78, opacity: 0 });
+            tl.to(textSheet, { rotateY: 0, opacity: 1, duration: 0.9 }, photosSheet ? '-=0.55' : 0);
+          }
           gsap.set(frames, { opacity: 0, scale: 0.92 });
-          gsap
-            .timeline()
-            .to(sheets, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', stagger: 0.12 })
-            .to(frames, { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out', stagger: 0.08 }, '-=0.25');
+          tl.to(frames, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08 }, '-=0.3');
         }
       }
 

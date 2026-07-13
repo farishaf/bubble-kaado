@@ -170,6 +170,8 @@
     "addPhoto": "Tambah foto",
     "uploading": "Mengunggah…",
     "removePhoto": "Hapus foto",
+    "movePhotoLeft": "Majukan urutan foto",
+    "movePhotoRight": "Mundurkan urutan foto",
     "uploadNotImage": "Hanya file gambar yang diperbolehkan.",
     "uploadTooBig": "Ukuran foto maksimal 8 MB.",
     "uploadFailed": "Upload gagal. Coba lagi."

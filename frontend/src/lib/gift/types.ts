@@ -9,6 +9,8 @@ export type GiftField = {
   required?: boolean;
   maxLength?: number;
   maxItems?: number;
+  /** photo-gallery only: per-slot caption telling where photo N shows up */
+  slotHints?: string[];
   options?: Array<{ value: string; label: string }>;
   info?: { title: string; body: string };
 };

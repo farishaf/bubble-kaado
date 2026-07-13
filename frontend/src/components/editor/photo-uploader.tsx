@@ -12,9 +12,11 @@ type Props = {
   onChange: (next: string[]) => void;
   maxItems?: number;
   fieldLabel?: string;
+  /** caption per slot index telling where that photo will appear */
+  slotHints?: string[];
 };
 
-export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel }: Props) {
+export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slotHints }: Props) {
   const t = useTranslations('editor');
   const tToast = useTranslations('toast');
   const { user } = useAuth();
@@ -82,6 +84,14 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel }: Pr
     onChange(value.filter((_, i) => i !== idx));
   };
 
+  const onMove = (idx: number, dir: -1 | 1) => {
+    const j = idx + dir;
+    if (j < 0 || j >= value.length) return;
+    const next = [...value];
+    [next[idx], next[j]] = [next[j], next[idx]];
+    onChange(next);
+  };
+
   return (
     <div>
       {fieldLabel && (
@@ -89,16 +99,49 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel }: Pr
       )}
       <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
         {value.map((url, i) => (
-          <div key={i} className="relative aspect-square rounded-md overflow-hidden border border-muted-2 group">
-            <img src={url} alt="" className="w-full h-full object-cover" />
-            <button
-              type="button"
-              onClick={() => void onRemove(i)}
-              aria-label={t('removePhoto')}
-              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-ink/80 text-paper text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              ×
-            </button>
+          <div key={i}>
+            <div className="relative aspect-square rounded-md overflow-hidden border border-muted-2 group">
+              <img src={url} alt="" className="w-full h-full object-cover" />
+              <span
+                aria-hidden
+                className="absolute top-1 left-1 w-5 h-5 rounded-full bg-ink/80 text-paper text-[10px] font-body flex items-center justify-center"
+              >
+                {i + 1}
+              </span>
+              <button
+                type="button"
+                onClick={() => void onRemove(i)}
+                aria-label={t('removePhoto')}
+                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-ink/80 text-paper text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                ×
+              </button>
+              {value.length > 1 && (
+                <div className="absolute bottom-1 inset-x-1 flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => onMove(i, -1)}
+                    disabled={i === 0}
+                    aria-label={t('movePhotoLeft')}
+                    className="w-6 h-6 rounded-full bg-ink/80 text-paper text-xs flex items-center justify-center disabled:opacity-30"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onMove(i, 1)}
+                    disabled={i === value.length - 1}
+                    aria-label={t('movePhotoRight')}
+                    className="w-6 h-6 rounded-full bg-ink/80 text-paper text-xs flex items-center justify-center disabled:opacity-30"
+                  >
+                    ›
+                  </button>
+                </div>
+              )}
+            </div>
+            {slotHints?.[i] && (
+              <p className="mt-1 font-body text-[10px] leading-tight text-ink-3">{slotHints[i]}</p>
+            )}
           </div>
         ))}
         {remaining > 0 && (

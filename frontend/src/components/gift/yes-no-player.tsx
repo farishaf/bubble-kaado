@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { GiftPlayerProps } from '@/lib/gift/types';
 import { giftSound } from '@/lib/gift/sound';
@@ -28,9 +28,72 @@ function youtubeId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-function spotifyEmbedUrl(url: string): string | null {
+function spotifyUri(url: string): string | null {
   const m = url.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/i);
-  return m ? `https://open.spotify.com/embed/${m[1].toLowerCase()}/${m[2]}` : null;
+  return m ? `spotify:${m[1].toLowerCase()}:${m[2]}` : null;
+}
+
+type SpotifyController = {
+  destroy: () => void;
+  play: () => void;
+  addListener: (event: string, cb: () => void) => void;
+};
+
+type SpotifyIframeApi = {
+  createController: (
+    el: HTMLElement,
+    options: { uri: string; height?: number | string; width?: number | string },
+    cb: (controller: SpotifyController) => void
+  ) => void;
+};
+
+let spotifyApiPromise: Promise<SpotifyIframeApi> | null = null;
+
+function loadSpotifyApi(): Promise<SpotifyIframeApi> {
+  if (!spotifyApiPromise) {
+    spotifyApiPromise = new Promise((resolve) => {
+      (window as Window & { onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void }).onSpotifyIframeApiReady =
+        resolve;
+      const s = document.createElement('script');
+      s.src = 'https://open.spotify.com/embed/iframe-api/v1';
+      s.async = true;
+      document.body.appendChild(s);
+    });
+  }
+  return spotifyApiPromise;
+}
+
+function SpotifyEmbed({ uri }: { uri: string }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    const target = document.createElement('div');
+    host.appendChild(target);
+    let controller: SpotifyController | null = null;
+    let cancelled = false;
+    void loadSpotifyApi().then((api) => {
+      if (cancelled) return;
+      api.createController(target, { uri, height: 152 }, (c) => {
+        if (cancelled) {
+          c.destroy();
+          return;
+        }
+        controller = c;
+        // ponytail: autoplay via iFrame API; the browser can still veto audio
+        // without a fresh gesture — the embed then just shows its play button
+        c.addListener('ready', () => c.play());
+      });
+    });
+    return () => {
+      cancelled = true;
+      controller?.destroy();
+      host.replaceChildren();
+    };
+  }, [uri]);
+
+  return <div ref={hostRef} className="gift-embed--spotify" />;
 }
 
 export function YesNoPlayer({ data }: GiftPlayerProps) {
@@ -57,9 +120,9 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
     [data.photos]
   );
   const ytId = youtubeId((data.youtube_url || '').trim());
-  const spEmbed = spotifyEmbedUrl((data.spotify_url || '').trim());
+  const spUri = spotifyUri((data.spotify_url || '').trim());
   const fallbackSongUrl =
-    !ytId && !spEmbed ? (data.youtube_url || data.spotify_url || '').trim() : '';
+    !ytId && !spUri ? (data.youtube_url || data.spotify_url || '').trim() : '';
   const lyrics = useMemo(
     () => (data.lyrics || '').split('\n').map((l) => l.trim()).filter(Boolean),
     [data.lyrics]
@@ -68,7 +131,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
     Boolean((data.song_title || '').trim() || (data.song_artist || '').trim()) ||
     lyrics.length > 0 ||
     Boolean(fallbackSongUrl);
-  const hasEmbeds = Boolean(ytId) || Boolean(spEmbed);
+  const hasEmbeds = Boolean(ytId) || Boolean(spUri);
 
   const toggleMute = () => {
     giftSound.setMuted(!muted);
@@ -263,15 +326,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                     />
                   </div>
                 )}
-                {spEmbed && (
-                  <iframe
-                    className="gift-embed--spotify"
-                    src={`${spEmbed}?autoplay=1`}
-                    title={data.song_title || 'Spotify'}
-                    allow="autoplay; encrypted-media"
-                    loading="lazy"
-                  />
-                )}
+                {spUri && <SpotifyEmbed uri={spUri} />}
               </div>
             )}
 

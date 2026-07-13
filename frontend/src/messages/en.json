@@ -170,6 +170,8 @@
     "addPhoto": "Add photo",
     "uploading": "Uploading…",
     "removePhoto": "Remove photo",
+    "movePhotoLeft": "Move photo earlier",
+    "movePhotoRight": "Move photo later",
     "uploadNotImage": "Only image files are allowed.",
     "uploadTooBig": "Each photo must be 8 MB or less.",
     "uploadFailed": "Upload failed. Please try again."
