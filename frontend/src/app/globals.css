@@ -1,0 +1,1188 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper:        oklch(0.97 0.012  80);
+  --color-paper-2:      oklch(0.94 0.015  80);
+  --color-paper-3:      oklch(0.91 0.014  78);
+
+  --color-ink:          oklch(0.22 0.015  60);
+  --color-ink-2:        oklch(0.45 0.012  60);
+  --color-ink-3:        oklch(0.62 0.010  60);
+
+  --color-muted:        oklch(0.88 0.010  80);
+  --color-muted-2:      oklch(0.92 0.010  80);
+
+  --color-accent:       oklch(0.68 0.100  15);
+  --color-accent-2:     oklch(0.78 0.080  70);
+  --color-accent-ink:   oklch(0.30 0.060  20);
+
+  --color-focus:        oklch(0.68 0.100  15);
+
+  --color-success:      oklch(0.72 0.110 150);
+  --color-warning:      oklch(0.78 0.110  80);
+  --color-danger:       oklch(0.62 0.180  25);
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body:    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+  --font-hand:    var(--font-hand-loaded, "Caveat"), "Segoe Script", cursive;
+
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px oklch(0.22 0.015 60 / 0.04);
+  --shadow-2: 0 4px 12px oklch(0.22 0.015 60 / 0.06);
+  --shadow-3: 0 12px 32px oklch(0.22 0.015 60 / 0.10);
+}
+
+@layer base {
+  html, body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Bloom ──────────────────────────────────────────────────────────── */
+
+.bouquet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding-bottom: 60px;
+}
+
+.bouquet__field {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.bouquet__slot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 120px;
+  transform: scale(0);
+  opacity: 0;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+
+.bouquet__flower {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transform: rotate(var(--rotate, 0deg));
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.bouquet__flower:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.bouquet__flower.is-active {
+  transform: rotate(var(--rotate, 0deg)) scale(1.12);
+}
+
+.bouquet__flower[data-flower-id="sunflower"] .flower,
+.bouquet__flower[data-flower-id="lavender"] .flower {
+  transform: translateY(8px);
+}
+
+.bouquet__flower.is-revealed .flower {
+  filter: drop-shadow(0 4px 14px oklch(0.68 0.100 15 / 0.18));
+}
+
+.bouquet__dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-paper);
+  pointer-events: none;
+}
+
+.bouquet__ring {
+  position: absolute;
+  inset: 4px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-accent);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.bouquet__wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  pointer-events: none;
+}
+
+.bouquet__wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .bouquet__field {
+    gap: 4px;
+    padding: 0 4px;
+  }
+  .bouquet__slot {
+    height: 96px;
+  }
+}
+
+@media (max-width: 360px) {
+  .bouquet__field {
+    gap: 2px;
+  }
+  .bouquet__slot {
+    height: 84px;
+  }
+}
+
+/* Picker variant — used on the landing page demo */
+.flower--picker {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 220ms ease;
+}
+
+.flower-picker__chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-muted-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease, transform 200ms ease;
+}
+
+.flower-picker__chip:hover {
+  border-color: var(--color-ink-2);
+  transform: translateY(-2px);
+}
+
+.flower-picker__chip[data-active="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-paper-2);
+}
+
+.flower-picker__chip[data-active="true"] .flower--picker {
+  transform: scale(1.1) rotate(-4deg);
+  filter: drop-shadow(0 4px 10px oklch(0.68 0.100 15 / 0.2));
+}
+
+.flower-picker__name {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--color-ink-2);
+  letter-spacing: 0.02em;
+}
+
+.flower-message-card {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 16px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 240px;
+  padding: 14px 16px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  z-index: 20;
+  pointer-events: none;
+  animation: flowerCardIn 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-align: left;
+}
+
+.flower-message-card::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-paper);
+  filter: drop-shadow(0 1px 0 var(--color-muted));
+}
+
+@keyframes flowerCardIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flower-message-card {
+    animation: none;
+  }
+}
+
+.flower-message-card__meaning {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 6px;
+}
+
+.flower-message-card__text {
+  font-family: var(--font-display);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.bloom-reveal-step {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.bloom-cta {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ── Kaado gift ─────────────────────────────────────────────────────── */
+
+[data-gift-theme] {
+  --gift-ink:   var(--color-ink);
+  --gift-ink-2: var(--color-ink-2);
+}
+
+[data-gift-theme="rose"] {
+  --gift-bg:         oklch(0.955 0.022 15);
+  --gift-card:       oklch(0.99  0.008 15);
+  --gift-soft:       oklch(0.90  0.045 15);
+  --gift-accent:     oklch(0.68  0.100 15);
+  --gift-accent-ink: oklch(0.98  0.010 15);
+}
+
+[data-gift-theme="ocean"] {
+  --gift-bg:         oklch(0.955 0.018 230);
+  --gift-card:       oklch(0.985 0.006 230);
+  --gift-soft:       oklch(0.89  0.045 230);
+  --gift-accent:     oklch(0.60  0.090 240);
+  --gift-accent-ink: oklch(0.98  0.008 230);
+}
+
+[data-gift-theme="sunset"] {
+  --gift-bg:         oklch(0.96  0.030 80);
+  --gift-card:       oklch(0.99  0.010 85);
+  --gift-soft:       oklch(0.90  0.060 70);
+  --gift-accent:     oklch(0.70  0.115 55);
+  --gift-accent-ink: oklch(0.24  0.050 55);
+}
+
+[data-gift-theme="lavender"] {
+  --gift-bg:         oklch(0.955 0.022 300);
+  --gift-card:       oklch(0.985 0.007 300);
+  --gift-soft:       oklch(0.89  0.048 300);
+  --gift-accent:     oklch(0.60  0.100 305);
+  --gift-accent-ink: oklch(0.98  0.008 300);
+}
+
+.gift-root {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--gift-bg);
+  color: var(--gift-ink);
+  font-family: var(--font-body);
+}
+
+.gift-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.gift-stage--letter {
+  align-items: flex-start;
+}
+
+.gift-center { text-align: center; }
+
+.gift-enter {
+  animation: giftPopIn 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes giftPopIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.gift-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gift-ink-2);
+}
+
+.gift-from {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.gift-box {
+  margin: 28px auto 30px;
+  width: 150px;
+  animation: giftBob 2.4s ease-in-out infinite;
+}
+
+@keyframes giftBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+.gift-box.is-opening {
+  animation: giftShake 0.6s ease-in-out;
+}
+
+@keyframes giftShake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-6deg); }
+  40% { transform: rotate(6deg); }
+  60% { transform: rotate(-4deg); }
+  80% { transform: rotate(4deg); }
+}
+
+.gift-box__lid {
+  transform-origin: 60px 44px;
+  transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 500ms ease;
+}
+
+.gift-box.is-opening .gift-box__lid {
+  transform: translateY(-30px) rotate(-12deg);
+  opacity: 0;
+}
+
+.gift-box__base, .gift-box__lid-rect { fill: var(--gift-accent); }
+.gift-box__ribbon { fill: var(--gift-card); }
+.gift-box__bow { fill: none; stroke: var(--gift-card); stroke-width: 4; stroke-linecap: round; }
+
+.gift-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--gift-card);
+  border-radius: var(--radius-xl);
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-3);
+}
+
+.gift-photo {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+}
+
+.gift-photo--wobble {
+  animation: giftWobble 420ms ease;
+}
+
+@keyframes giftWobble {
+  0%   { transform: rotate(0) scale(1); }
+  30%  { transform: rotate(-3deg) scale(1.03); }
+  60%  { transform: rotate(3deg) scale(0.98); }
+  100% { transform: none; }
+}
+
+.gift-mascot { display: block; margin: 0 auto; }
+.gift-mascot__body { fill: var(--gift-soft); }
+.gift-mascot__shadow { fill: var(--gift-ink); opacity: 0.08; }
+.gift-mascot__cheek { fill: var(--gift-accent); opacity: 0.45; }
+.gift-mascot__fill { fill: var(--gift-ink); }
+.gift-mascot__line { fill: none; stroke: var(--gift-ink); stroke-width: 3; stroke-linecap: round; }
+
+.gift-mascot__tear {
+  fill: oklch(0.78 0.08 230);
+  animation: giftTear 1.4s ease-in infinite;
+}
+
+.gift-mascot__tear--2 { animation-delay: 0.5s; }
+
+@keyframes giftTear {
+  0%   { opacity: 0; transform: translateY(0); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(10px); }
+}
+
+.gift-mascot__heart {
+  fill: var(--gift-accent);
+  animation: giftHeartFloat 1.8s ease-in-out infinite;
+}
+
+.gift-mascot__heart--2 { animation-delay: 0.3s; }
+.gift-mascot__heart--3 { animation-delay: 0.6s; }
+
+@keyframes giftHeartFloat {
+  0%, 100% { opacity: 0.9; transform: translateY(0); }
+  50%      { opacity: 1; transform: translateY(-6px); }
+}
+
+.gift-question {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.gift-plea {
+  min-height: 22px;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--gift-ink-2);
+}
+
+.gift-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 22px;
+  min-height: 64px;
+}
+
+.gift-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0 26px;
+  height: 46px;
+  border-radius: var(--radius-pill);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 200ms ease;
+}
+
+.gift-btn:active { translate: 0 1px; }
+
+.gift-btn--yes {
+  background: var(--gift-accent);
+  color: var(--gift-accent-ink);
+  box-shadow: var(--shadow-2);
+}
+
+.gift-btn--yes:hover { filter: brightness(1.05); }
+
+.gift-btn--no {
+  background: var(--gift-soft);
+  color: var(--gift-ink-2);
+}
+
+.gift-btn--small {
+  height: 36px;
+  padding: 0 18px;
+  font-size: 13px;
+  background: var(--gift-accent);
+  color: var(--gift-accent-ink);
+  text-decoration: none;
+}
+
+.gift-success {
+  margin: 10px 0 22px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.gift-mute {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 50;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gift-soft);
+  background: var(--gift-card);
+  color: var(--gift-ink-2);
+  cursor: pointer;
+}
+
+.gift-letter-col {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 20px 0 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gift-letter {
+  position: relative;
+  background: var(--gift-card);
+  border-radius: var(--radius-md);
+  padding: 36px 28px 30px;
+  box-shadow: var(--shadow-2);
+  transform: rotate(-0.6deg);
+}
+
+.gift-letter::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 92px;
+  height: 22px;
+  background: var(--gift-soft);
+  opacity: 0.8;
+  border-radius: 2px;
+  transform: translateX(-50%) rotate(-2deg);
+}
+
+.gift-letter__text {
+  font-family: var(--font-hand);
+  font-size: 21px;
+  line-height: 1.5;
+  color: var(--gift-ink);
+}
+
+.gift-letter__body {
+  margin-top: 12px;
+  white-space: pre-line;
+}
+
+.gift-letter__signed {
+  margin-top: 18px;
+  text-align: right;
+}
+
+.gift-letter--ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--gift-soft) 31px,
+    var(--gift-soft) 32px
+  );
+  background-origin: content-box;
+}
+
+.gift-letter--ruled .gift-letter__text {
+  line-height: 32px;
+}
+
+.gift-letter--vintage {
+  background: oklch(0.93 0.03 85);
+  border: 1px solid oklch(0.85 0.05 80);
+  box-shadow: var(--shadow-2), inset 0 0 0 6px oklch(0.95 0.025 85);
+}
+
+.gift-letter--vintage::before {
+  background: oklch(0.88 0.04 80);
+}
+
+.gift-polaroids {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.gift-polaroid {
+  width: calc(50% - 7px);
+  margin: 0;
+  background: var(--gift-card);
+  padding: 8px 8px 24px;
+  border-radius: 4px;
+  box-shadow: var(--shadow-2);
+  transform: rotate(-2deg);
+}
+
+.gift-polaroid:nth-child(even) {
+  transform: rotate(2.2deg);
+}
+
+.gift-polaroid:only-child {
+  width: 70%;
+}
+
+.gift-polaroid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.gift-song {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gift-embed {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+
+.gift-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.gift-embed--spotify {
+  display: block;
+  width: 100%;
+  height: 152px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.gift-vinyl-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--gift-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-2);
+}
+
+.gift-vinyl svg {
+  display: block;
+  animation: giftSpin 5s linear infinite;
+}
+
+@keyframes giftSpin {
+  to { transform: rotate(360deg); }
+}
+
+.gift-vinyl__disc { fill: oklch(0.25 0.01 60); }
+.gift-vinyl__groove { fill: none; stroke: oklch(0.35 0.01 60); stroke-width: 1; }
+.gift-vinyl__label { fill: var(--gift-accent); }
+.gift-vinyl__hole { fill: var(--gift-card); }
+
+.gift-vinyl-meta { min-width: 0; }
+.gift-vinyl-title { font-family: var(--font-display); font-size: 17px; }
+.gift-vinyl-artist { margin-top: 2px; font-size: 13px; color: var(--gift-ink-2); }
+.gift-vinyl-meta .gift-btn--small { margin-top: 10px; }
+
+.gift-countdown {
+  align-self: center;
+  padding: 10px 18px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--gift-ink-2);
+  background: var(--gift-card);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-1);
+}
+
+.gift-footer {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--gift-ink-2);
+}
+
+.gift-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.gift-footer a:hover { color: var(--gift-ink); }
+
+.gift-footer__brand {
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+}
+
+.gift-confetti-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.gift-confetti {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 13px;
+  border-radius: 2px;
+}
+
+.gc0 { background: oklch(0.75 0.12 15); }
+.gc1 { background: oklch(0.85 0.11 80); }
+.gc2 { background: oklch(0.83 0.10 150); }
+.gc3 { background: oklch(0.80 0.09 230); }
+.gc4 { background: oklch(0.78 0.10 300); border-radius: var(--radius-pill); }
+.gc5 { background: oklch(0.90 0.06 90); border-radius: var(--radius-pill); }
+
+/* ── Kaado envelope ─────────────────────────────────────────────────── */
+
+.gift-env[data-env="cream"] { --env-base: oklch(0.93 0.02 85);  --env-deep: oklch(0.87 0.03 82);  }
+.gift-env[data-env="rose"]  { --env-base: oklch(0.90 0.045 15); --env-deep: oklch(0.84 0.06 15);  }
+.gift-env[data-env="kraft"] { --env-base: oklch(0.85 0.045 75); --env-deep: oklch(0.78 0.055 72); }
+.gift-env[data-env="sky"]   { --env-base: oklch(0.90 0.04 230); --env-deep: oklch(0.83 0.05 235); }
+
+.gift-env-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.gift-env {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 90px 10px 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gift-env__bounce {
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+.gift-env__body {
+  position: relative;
+  width: min(320px, 76vw);
+  aspect-ratio: 3 / 2;
+  perspective: 900px;
+}
+
+.gift-env__back {
+  position: absolute;
+  inset: 0;
+  background: var(--env-deep);
+  border-radius: 10px;
+}
+
+.gift-env__letter {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 6%;
+  bottom: 6%;
+  z-index: 2;
+  background: var(--gift-card);
+  border-radius: 6px;
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  will-change: transform;
+}
+
+.gift-env__letter .gift-cover__title { font-size: 22px; }
+.gift-env__letter .gift-cover__hint { display: none; }
+
+.gift-env__front {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--env-base);
+  border-radius: 10px;
+  clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 9%;
+  box-shadow: inset 0 -1px 0 oklch(0.22 0.015 60 / 0.06);
+}
+
+.gift-env__to {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  color: var(--gift-ink);
+}
+
+.gift-env__flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  z-index: 4;
+  background: var(--env-deep);
+  border-radius: 10px 10px 0 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+  backface-visibility: visible;
+  will-change: transform;
+}
+
+.gift-env__seal {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 5;
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border-radius: var(--radius-pill);
+  background: var(--gift-accent);
+  box-shadow: var(--shadow-1);
+  pointer-events: none;
+}
+
+.gift-env__seal::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: var(--radius-pill);
+  border: 1.5px dashed var(--gift-accent-ink);
+  opacity: 0.7;
+}
+
+.gift-env__shadow {
+  width: 200px;
+  height: 12px;
+  margin: 14px auto 0;
+  border-radius: var(--radius-pill);
+  background: var(--gift-ink);
+  opacity: 0.1;
+}
+
+.gift-env__hint {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gift-ink-2);
+}
+
+/* ── Kaado letter cover ─────────────────────────────────────────────── */
+
+.gift-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--gift-card);
+}
+
+.gift-cover__frame {
+  position: absolute;
+  inset: 12px;
+  border: 1.5px solid var(--gift-accent);
+  border-radius: 8px;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.gift-cover__frame::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px dashed var(--gift-accent);
+  border-radius: 5px;
+  opacity: 0.5;
+}
+
+.gift-cover__title {
+  position: relative;
+  font-family: var(--font-hand);
+  font-size: 36px;
+  line-height: 1.15;
+  color: var(--gift-ink);
+  text-align: center;
+  padding: 0 28px;
+}
+
+.gift-cover__flourish { color: var(--gift-accent); }
+
+.gift-cover__orn {
+  position: absolute;
+  color: var(--gift-accent);
+  opacity: 0.8;
+}
+
+.gift-cover__orn--tl { top: 15%; left: 13%; transform: rotate(-10deg); }
+.gift-cover__orn--tr { top: 13%; right: 15%; transform: rotate(14deg); }
+.gift-cover__orn--ml { top: 48%; left: 9%; transform: rotate(6deg); }
+.gift-cover__orn--br { bottom: 15%; right: 13%; transform: rotate(-8deg); }
+.gift-cover__orn--bl { bottom: 13%; left: 17%; transform: rotate(12deg); }
+
+.gift-cover__hint {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gift-ink-2);
+  animation: giftHintPulse 2s ease-in-out infinite;
+}
+
+@keyframes giftHintPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* ── Kaado 3-face letter ────────────────────────────────────────────── */
+
+.gift-letter3d {
+  perspective: 1200px;
+}
+
+.gift-letter3d__card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.gift-lface--cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin-inline: auto;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--shadow-3);
+  background: var(--gift-card);
+}
+
+.gift-lmain {
+  display: grid;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .gift-lmain:has(.gift-lmain__photos) {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+}
+
+.gift-lmain__photos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.gift-lmain__photos .gift-polaroid { width: calc(50% - 6px); }
+.gift-lmain__photos .gift-polaroid:only-child { width: 78%; }
+
+@media (min-width: 640px) {
+  .gift-lmain__photos .gift-polaroid:only-child { width: 92%; }
+}
+
+.gift-letter__caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--gift-ink);
+  animation: giftCaret 0.8s steps(2) infinite;
+}
+
+@keyframes giftCaret {
+  50% { opacity: 0; }
+}
+
+.gift-letter__sign {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.gift-letter__sign .gift-letter__signed { margin-top: 0; }
+
+.gift-stamp {
+  flex-shrink: 0;
+  color: var(--color-danger);
+  opacity: 0.85;
+  transform: rotate(-12deg);
+  mix-blend-mode: multiply;
+}
+
+.gift-sticker {
+  position: absolute;
+  z-index: 2;
+  color: var(--gift-accent);
+  filter:
+    drop-shadow(1px 0 0 var(--gift-card))
+    drop-shadow(-1px 0 0 var(--gift-card))
+    drop-shadow(0 1px 0 var(--gift-card))
+    drop-shadow(0 -1px 0 var(--gift-card))
+    drop-shadow(0 2px 2px oklch(0.22 0.015 60 / 0.18));
+  pointer-events: none;
+}
+
+.gift-sticker--a { top: -9px; right: 20px; transform: rotate(12deg); }
+.gift-sticker--b { top: 42%; left: -8px; transform: rotate(-14deg); }
+.gift-sticker--c { bottom: 16px; left: 24px; transform: rotate(8deg); }
+
+.gift-lface__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.gift-btn--ghost {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid var(--gift-soft);
+  color: var(--gift-ink-2);
+}
+
+.gift-btn--ghost:hover {
+  color: var(--gift-ink);
+  border-color: var(--gift-accent);
+}
+
+/* ── Kaado letter back (vinyl + lyrics) ─────────────────────────────── */
+
+.gift-lface--back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: oklch(0.25 0.015 60);
+  border-radius: var(--radius-md);
+  padding: 30px 24px 26px;
+  box-shadow: var(--shadow-3);
+  text-align: center;
+}
+
+.gift-vinyl--big svg {
+  display: block;
+  animation: giftSpin 5s linear infinite;
+}
+
+.gift-lback__song {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: oklch(0.92 0.012 80);
+}
+
+.gift-lback__song span {
+  font-family: var(--font-body);
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.gift-lyrics {
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 4px;
+  text-align: left;
+  scrollbar-width: thin;
+}
+
+.gift-lyrics__line {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.4;
+  color: oklch(0.93 0.015 80);
+  opacity: 0.35;
+  transform-origin: left center;
+}
+
+.gift-lface--back .gift-btn--ghost {
+  border-color: oklch(0.42 0.012 60);
+  color: oklch(0.85 0.012 80);
+}
+
+.gift-lface--back .gift-btn--ghost:hover {
+  color: oklch(0.97 0.01 80);
+  border-color: var(--gift-accent);
+}
+
+@media (min-width: 768px) {
+  .gift-letter-col { max-width: 620px; }
+}

@@ -1,0 +1,184 @@
+import type { GiftTemplate } from './types';
+
+export const GIFT_TEMPLATES: GiftTemplate[] = [
+  {
+    slug: 'yes-no',
+    name: 'Tanya Dulu',
+    description:
+      'Satu pertanyaan, dua tombol. Tombol nggak makin kecil setiap ditekan — sampai tersisa satu jawaban.',
+    sections: [
+      { id: 'basics', label: 'Dasar', fields: ['recipient_name', 'sender_name', 'question'] },
+      { id: 'buttons', label: 'Tombol & rayuan', fields: ['yes_label', 'no_label', 'no_lines', 'success_text'] },
+      { id: 'letter', label: 'Surat', fields: ['letter', 'letter_style', 'envelope_color', 'letter_front', 'stamp', 'sticker_set'] },
+      { id: 'photos', label: 'Foto', fields: ['photos'] },
+      { id: 'music', label: 'Musik', fields: ['song_title', 'song_artist', 'lyrics', 'youtube_url', 'spotify_url'] },
+      { id: 'extras', label: 'Sentuhan akhir', fields: ['meet_date', 'theme'] },
+    ],
+    fields: [
+      { key: 'recipient_name', label: 'Nama dia', placeholder: 'Ara', type: 'text', required: true, maxLength: 40 },
+      { key: 'sender_name', label: 'Nama kamu', placeholder: 'Dim', type: 'text', maxLength: 40 },
+      {
+        key: 'question',
+        label: 'Pertanyaanmu',
+        placeholder: 'Aku kangen. Mau video call bareng malam ini?',
+        type: 'text',
+        required: true,
+        maxLength: 120,
+      },
+      {
+        key: 'photos',
+        label: 'Foto kalian (maks 4)',
+        type: 'photo-gallery',
+        maxItems: 4,
+        help: 'Foto pertama muncul di kartu pertanyaan, semuanya menemani surat. Perlu masuk dulu untuk mengunggah. Kosongkan untuk memakai maskot bawaan.',
+      },
+      { key: 'yes_label', label: 'Tombol iya', placeholder: 'Mau', type: 'text', maxLength: 20 },
+      { key: 'no_label', label: 'Tombol nggak', placeholder: 'Nggak', type: 'text', maxLength: 20 },
+      {
+        key: 'no_lines',
+        label: 'Rayuan tiap dia menekan nggak',
+        type: 'textarea',
+        maxLength: 600,
+        help: 'Satu baris untuk satu tekanan. Setelah lima kali, tombol nggak menyerah dan hilang.',
+      },
+      { key: 'success_text', label: 'Teks perayaan', placeholder: 'AKU TAHU KAMU BAKAL BILANG IYA', type: 'text', maxLength: 80 },
+      {
+        key: 'letter',
+        label: 'Suratmu',
+        type: 'textarea',
+        required: true,
+        maxLength: 3000,
+        help: 'Dibuka setelah dia menjawab iya. Ditulis dengan huruf tangan.',
+      },
+      {
+        key: 'letter_style',
+        label: 'Gaya kertas surat',
+        type: 'select',
+        options: [
+          { value: 'plain', label: 'Polos' },
+          { value: 'ruled', label: 'Bergaris' },
+          { value: 'vintage', label: 'Vintage' },
+        ],
+      },
+      {
+        key: 'envelope_color',
+        label: 'Warna amplop',
+        type: 'select',
+        options: [
+          { value: 'cream', label: 'Krem' },
+          { value: 'rose', label: 'Merah muda' },
+          { value: 'kraft', label: 'Kraft' },
+          { value: 'sky', label: 'Biru langit' },
+        ],
+      },
+      {
+        key: 'letter_front',
+        label: 'Sampul surat',
+        type: 'select',
+        options: [
+          { value: 'classic', label: 'Klasik' },
+          { value: 'stars', label: 'Bintang' },
+          { value: 'hearts', label: 'Hati' },
+        ],
+      },
+      {
+        key: 'stamp',
+        label: 'Stempel dekat tanda tangan',
+        type: 'select',
+        options: [
+          { value: 'love', label: 'Made with love' },
+          { value: 'original', label: 'Original' },
+          { value: 'none', label: 'Tanpa stempel' },
+        ],
+      },
+      {
+        key: 'sticker_set',
+        label: 'Stiker surat',
+        type: 'select',
+        options: [
+          { value: 'hearts', label: 'Hati' },
+          { value: 'stars', label: 'Bintang' },
+          { value: 'blooms', label: 'Bunga' },
+          { value: 'none', label: 'Tanpa stiker' },
+        ],
+      },
+      { key: 'song_title', label: 'Judul lagu kalian (opsional)', placeholder: 'Bombay Dreams', type: 'text', maxLength: 60 },
+      { key: 'song_artist', label: 'Penyanyi (opsional)', placeholder: 'KSHMR', type: 'text', maxLength: 60 },
+      {
+        key: 'lyrics',
+        label: 'Lirik lagu (opsional)',
+        type: 'textarea',
+        maxLength: 800,
+        help: 'Satu baris per lirik. Muncul di balik surat seperti tampilan lirik Spotify.',
+      },
+      {
+        key: 'youtube_url',
+        label: 'Tautan YouTube (opsional)',
+        type: 'url',
+        placeholder: 'https://youtu.be/…',
+        help: 'Lagunya langsung bisa diputar dari dalam hadiah.',
+      },
+      {
+        key: 'spotify_url',
+        label: 'Tautan Spotify (opsional)',
+        type: 'url',
+        placeholder: 'https://open.spotify.com/track/…',
+        info: {
+          title: 'Cara mengambil tautan Spotify',
+          body: 'Di aplikasi Spotify, buka lagunya lalu tekan ikon ⋯ dan pilih Bagikan, kemudian Salin tautan lagu. Tempel tautannya di sini — Kaado otomatis mengubahnya menjadi pemutar mini di dalam hadiah. Tanpa masuk Spotify, penerima mendengar cuplikannya dan bisa membukanya penuh di aplikasi.',
+        },
+      },
+      {
+        key: 'meet_date',
+        label: 'Tanggal ketemu berikutnya (opsional)',
+        type: 'date',
+        help: 'Kaado menghitung mundur harinya untuk kalian.',
+      },
+      {
+        key: 'theme',
+        label: 'Tema warna',
+        type: 'select',
+        options: [
+          { value: 'rose', label: 'Romantic Rose' },
+          { value: 'ocean', label: 'Ocean Breeze' },
+          { value: 'sunset', label: 'Golden Sunset' },
+          { value: 'lavender', label: 'Lavender Dream' },
+        ],
+      },
+    ],
+    defaults: {
+      recipient_name: '',
+      sender_name: '',
+      question: 'Aku kangen. Mau nemenin aku video call malam ini?',
+      photos: '',
+      yes_label: 'Mau',
+      no_label: 'Nggak',
+      no_lines: [
+        'Yakin? Aku udah siapin playlist buat kita berdua…',
+        'Hatiku retak pelan-pelan. Kedengeran sampai sana, kan?',
+        'Bantalku saja setuju kamu harusnya bilang iya.',
+        'Oke, aku mulai panik. Tombolnya makin kecil tuh.',
+        'Tombol nggak-nya sudah capek. Tinggal satu pilihan.',
+      ].join('\n'),
+      success_text: 'AKU TAHU KAMU BAKAL BILANG IYA',
+      letter:
+        'Jarak segini cuma angka di peta.\nTiap malam aku tetap milih kamu, dari layar kecil ini.\nSampai nanti kita nggak perlu menghitung zona waktu lagi.',
+      letter_style: 'plain',
+      envelope_color: 'cream',
+      letter_front: 'classic',
+      stamp: 'love',
+      sticker_set: 'hearts',
+      lyrics: '',
+      song_title: '',
+      song_artist: '',
+      youtube_url: '',
+      spotify_url: '',
+      meet_date: '',
+      theme: 'rose',
+    },
+  },
+];
+
+export function getGiftTemplate(slug: string): GiftTemplate | undefined {
+  return GIFT_TEMPLATES.find((t) => t.slug === slug);
+}

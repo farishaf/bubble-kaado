@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2026-07-09",
+    "macrostructure": "Letter (in-product gift flow)",
+    "theme": "shared (Kaado gift tokens \u00b7 envelope colour variants)",
+    "enrichment": "Tier-A hand-built SVG (envelope, covers, stamp, stickers, vinyl) + GSAP timelines",
+    "brief": "Kaado \u00b7 yes-no template v2 \u00b7 envelope open + 3-face flip letter (typewriter, vinyl lyrics)"
+  },
+  {
+    "date": "2026-06-20",
+    "macrostructure": "Editorial Showcase",
+    "theme": "custom (warm-cream + dusty-rose)",
+    "enrichment": "none \u2014 typography only",
+    "brief": "Lumio \u00b7 wedding invitation builder \u00b7 v1"
+  },
+  {
+    "date": "2026-06-21",
+    "macrostructure": "Letter",
+    "theme": "shared (Lumio palette \u00b7 dusty-rose accent) \u2014 content-led via floriography",
+    "enrichment": "Tier-A hand-built SVG flowers + GSAP bloom timeline",
+    "brief": "Bloom \u00b7 digital bouquet gift for teen couples \u00b7 v1"
+  }
+]

@@ -1,0 +1,333 @@
+{
+  "meta": {
+    "title": "Lumio — Wedding invitations that feel like you",
+    "description": "Make a warm invitation page in minutes. Share with guests via a single link."
+  },
+  "header": {
+    "brand": "Lumio",
+    "design": "Start",
+    "languageToggle": "ID",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out",
+    "account": "My account",
+    "dashboard": "My invitations",
+    "bloom": "Bloom",
+    "gift": "Gift"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in to Lumio",
+      "subtitle": "Pick up where you left off with your invitation.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up"
+    },
+    "signUp": {
+      "title": "Create a Lumio account",
+      "subtitle": "Save your invitation and come back any time.",
+      "fullName": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign up",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "errors": {
+      "invalidCredentials": "Wrong email or password.",
+      "emailTaken": "That email is already registered. Try signing in instead.",
+      "emailNotConfirmed": "Email isn't confirmed yet. Check your inbox for the confirmation link, or ask the admin to disable email confirmation.",
+      "rateLimit": "Supabase hit its free-tier email rate limit (too many signups in a short window). Wait a few minutes, or ask the admin to disable email confirmation in the dashboard.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "signupDisabled": "Signups are temporarily disabled by the admin.",
+      "signInFail": "Couldn't sign in. Check your email and password.",
+      "signUpFail": "Couldn't sign up. Please try again in a moment.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "close": "Close",
+    "submitting": "Working…"
+  },
+  "toast": {
+    "signedIn": "Welcome back.",
+    "signedUp": "Account created.",
+    "signedOut": "You've been signed out.",
+    "signOutFail": "Couldn't sign you out. Try again.",
+    "saved": "Invitation saved.",
+    "saveFail": "Couldn't save. Please try again.",
+    "copied": "Link copied to clipboard.",
+    "uploaded": "Photo uploaded.",
+    "uploadedMany": "{n} photos uploaded.",
+    "uploadFail": "Photo upload failed. Please try again.",
+    "signInToUpload": "Sign in to add photos."
+  },
+  "home": {
+    "eyebrow": "For your happy day",
+    "headline": "Invitations that feel like you.",
+    "lede": "Pick a template, fill in your story, share with guests via one link.",
+    "primaryCta": "Start",
+    "secondaryCta": "See templates"
+  },
+  "templates": {
+    "eyebrow": "Templates",
+    "heading": "Pick the one that feels most like you.",
+    "lede": "Every template is built for one thing: making your story easy to read for the people who matter most.",
+    "empty": "Templates are on the way. Start now — we'll match you when you're ready.",
+    "viewAll": "See all templates",
+    "comingSoon": "Coming soon"
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "heading": "Three steps. No more.",
+    "step1Title": "Pick",
+    "step1Body": "Choose a template that matches your style.",
+    "step2Title": "Fill",
+    "step2Body": "Tell your story — names, date, place, and a few small details.",
+    "step3Title": "Share",
+    "step3Body": "Get one link. Send it to guests on WhatsApp or anywhere."
+  },
+  "testimonials": {
+    "eyebrow": "Stories",
+    "heading": "Stories from those who went first.",
+    "empty": "The first story will come from you. After your day, share it and be the first here."
+  },
+  "cta": {
+    "heading": "Ready to begin?",
+    "body": "Your invitation page is waiting. No credit card needed.",
+    "button": "Start now"
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "heading": "What people ask.",
+    "items": [
+      {
+        "q": "What is Lumio?",
+        "a": "Lumio is a tool to make a wedding invitation page that anyone can open via a single link, on any device."
+      },
+      {
+        "q": "How much does it cost?",
+        "a": "Free for now. Premium templates and features are coming soon."
+      },
+      {
+        "q": "Do my guests need an account?",
+        "a": "No. Guests just open the link — no login, no app to download."
+      },
+      {
+        "q": "Can I edit the design after sharing the link?",
+        "a": "Yes, any time. Updates show on the same link — no need to resend."
+      },
+      {
+        "q": "Is my data safe?",
+        "a": "Your invitation data is stored on encrypted infrastructure. We never share it with third parties."
+      }
+    ]
+  },
+  "footer": {
+    "line": "Made with care in Jakarta.",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "design": {
+    "eyebrow": "Start",
+    "heading": "Pick a template, begin your story.",
+    "lede": "Six templates, each with its own character. Click one to start — you can switch any time.",
+    "filterAria": "Filter by category",
+    "categories": {
+      "all": "All",
+      "classic": "Classic",
+      "modern": "Modern",
+      "floral": "Floral",
+      "editorial": "Editorial"
+    }
+  },
+  "editor": {
+    "editingTemplate": "Editing",
+    "changeTemplate": "Change template",
+    "sectionsAria": "Sections",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveAndSignup": "Sign up & save",
+    "previewLabel": "Preview",
+    "fullPreview": "Full page",
+    "sectionTip": "This section is auto-saved in your browser.",
+    "sectionOn": "On",
+    "sectionOff": "Off",
+    "sectionToggleOn": "Enable section",
+    "sectionToggleOff": "Disable section",
+    "sectionDisabledMessage": "This section is disabled. Turn it on to add content.",
+    "allDisabledHint": "All sections are off. Enable at least one in the editor.",
+    "defaultFromWeddingDate": "Auto-filled from your wedding date — overwrite to change.",
+    "close": "Close",
+    "savedTitle": "Invitation saved.",
+    "savedBody": "The link below is ready to share. Guests can open it in any browser.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "backToDashboard": "Back",
+    "viewInvite": "View invitation",
+    "errorSave": "Couldn't save. Please try again.",
+    "addPhoto": "Add photo",
+    "uploading": "Uploading…",
+    "removePhoto": "Remove photo",
+    "uploadNotImage": "Only image files are allowed.",
+    "uploadTooBig": "Each photo must be 8 MB or less.",
+    "uploadFailed": "Upload failed. Please try again."
+  },
+  "dashboard": {
+    "heading": "My creations",
+    "lede": "Everything you've made, in one place.",
+    "count": "{n} saved",
+    "newCta": "Create new",
+    "view": "View",
+    "copy": "Copy",
+    "copied": "Copied",
+    "statusDraft": "Draft",
+    "statusPublished": "Published",
+    "emptyTitle": "Nothing saved yet",
+    "emptyBody": "Your first page is waiting. Pick a template, tell your story, and share with guests via one link.",
+    "emptyCta": "Start now",
+    "emptyHelp": "Need help?",
+    "errorLoad": "Couldn't load invitations ({code})."
+  },
+  "invite": {
+    "openInvite": "An invitation for you",
+    "openButton": "Open invitation",
+    "openHint": "Tap to open",
+    "madeWith": "Made with"
+  },
+  "bloom": {
+    "meta": {
+      "title": "Bloom — a small thing for someone",
+      "description": "A digital bouquet that blooms from a link. Each flower carries one message, one feeling."
+    },
+    "home": {
+      "eyebrow": "Bloom",
+      "headline": "A small thing, for someone.",
+      "lede": "A digital bouquet that blooms from a link. Pick the flowers, write the messages, send it to someone you love.",
+      "primaryCta": "Start",
+      "secondaryCta": "See example"
+    },
+    "header": {
+      "bloom": "Bloom"
+    },
+    "flowers": {
+      "eyebrow": "Flowers",
+      "heading": "Each flower means something.",
+      "lede": "Pick the flowers, then write a small message for each one.",
+      "rose": "Rose",
+      "tulip": "Tulip",
+      "daisy": "Daisy",
+      "sunflower": "Sunflower",
+      "lavender": "Lavender",
+      "peony": "Peony",
+      "blossom": "Cherry blossom",
+      "lily": "Lily",
+      "hint": "Tap a flower to see what it means"
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "heading": "Three steps. No more.",
+      "step1Title": "Pick flowers",
+      "step1Body": "Three to eight flowers. Each one carries a meaning.",
+      "step2Title": "Write messages",
+      "step2Body": "One short sentence for each flower, and one note for whoever opens it.",
+      "step3Title": "Send",
+      "step3Body": "Share one link. The flowers bloom when opened."
+    },
+    "cta": {
+      "heading": "Want to send one now?",
+      "body": "Takes less than five minutes.",
+      "button": "Start a bouquet"
+    },
+    "fromLabel": "from {name}",
+    "aSmallThing": "A small thing",
+    "forYou": "For {name}.",
+    "forYouAnon": "For you.",
+    "openBouquet": "Open bouquet",
+    "tapToBloom": "Tap to make the flowers bloom",
+    "bouquetLabel": "Your bouquet",
+    "tapEach": "Tap each flower.",
+    "hint": "Each flower holds one message.",
+    "meanings": {
+      "love": "love",
+      "care": "care",
+      "joy": "joy",
+      "warmth": "warmth",
+      "patience": "devotion",
+      "grace": "grace",
+      "memory": "a memory",
+      "hope": "hope"
+    },
+    "allOpened": "All flowers opened.",
+    "openedCount": "{count} of {total} flowers opened",
+    "readNote": "Read the note",
+    "resetSelection": "Close"
+  },
+  "gift": {
+    "meta": {
+      "title": "Something for you — Kaado",
+      "description": "A small digital gift, sent through a single link."
+    },
+    "index": {
+      "eyebrow": "Kaado",
+      "heading": "Small gifts that travel far.",
+      "lede": "For the two of you split across cities or time zones. Pick a template, fill in your story, send one link — the whole gift lives inside the link itself.",
+      "makeCta": "Make one",
+      "demoCta": "See example"
+    },
+    "editor": {
+      "back": "All templates",
+      "editing": "Editing",
+      "linkHint": "No account needed. The whole gift is packed into the link — copy it and send it over WhatsApp.",
+      "mobile": "Phone",
+      "desktop": "Desktop",
+      "viewportAria": "Preview size",
+      "restart": "Replay",
+      "openTab": "Open in new tab",
+      "copyLink": "Copy link",
+      "copied": "Link copied. Ready to send.",
+      "copyFail": "Couldn't copy. Try again.",
+      "missingRequired": "Fill the fields marked * to create the link.",
+      "qr": "QR code",
+      "qrTitle": "Share via QR",
+      "qrScan": "Scan to open the gift",
+      "qrFor": "For {name}",
+      "qrForAnon": "Something for you",
+      "copyImage": "Copy image",
+      "imageCopied": "Image copied.",
+      "copyImageFail": "Couldn't copy the image. Save it instead.",
+      "saveImage": "Save image",
+      "qrTooLong": "The gift is too long for a QR code. Shorten the letter, or share the link directly.",
+      "close": "Close",
+      "save": "Save to profile",
+      "saveAgain": "Update saved",
+      "savingBtn": "Saving…",
+      "saved": "Saved to your profile.",
+      "saveFail": "Couldn't save. Try again."
+    },
+    "player": {
+      "forYou": "For {name}",
+      "forYouAnon": "For you",
+      "fromLabel": "from {name}",
+      "open": "Open the gift",
+      "yesFallback": "Yes",
+      "noFallback": "No",
+      "readLetter": "Read the letter",
+      "letterGreeting": "Dear {name},",
+      "letterGreetingAnon": "Dear you,",
+      "playSong": "Play the song",
+      "daysToGo": "{n} days until we meet",
+      "meetToday": "We meet today",
+      "replyCta": "Reply with a small gift of your own",
+      "soundOn": "Turn sound on",
+      "soundOff": "Turn sound off",
+      "envelopeHintClosed": "Tap the envelope",
+      "envelopeHintAjar": "Tap again to take the letter",
+      "coverHint": "Tap to open the letter",
+      "flipToBack": "Flip the letter",
+      "flipToFront": "Back to the letter",
+      "closeLetter": "Close the letter"
+    }
+  }
+}

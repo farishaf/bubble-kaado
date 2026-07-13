@@ -1,0 +1,333 @@
+{
+  "meta": {
+    "title": "Lumio — Undangan pernikahan yang terasa seperti Anda",
+    "description": "Buat halaman undangan yang hangat dalam hitungan menit. Bagikan ke tamu lewat satu tautan."
+  },
+  "header": {
+    "brand": "Lumio",
+    "design": "Mulai",
+    "languageToggle": "EN",
+    "signIn": "Masuk",
+    "signUp": "Daftar",
+    "signedInAs": "Masuk sebagai",
+    "signOut": "Keluar",
+    "account": "Akun saya",
+    "dashboard": "Undangan saya",
+    "bloom": "Bloom",
+    "gift": "Kaado"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Masuk ke Lumio",
+      "subtitle": "Lanjutkan mengatur undangan Anda.",
+      "email": "Email",
+      "password": "Kata sandi",
+      "submit": "Masuk",
+      "noAccount": "Belum punya akun?",
+      "signUpLink": "Daftar"
+    },
+    "signUp": {
+      "title": "Buat akun Lumio",
+      "subtitle": "Simpan undangan Anda dan kembali kapan saja.",
+      "fullName": "Nama lengkap",
+      "email": "Email",
+      "password": "Kata sandi",
+      "submit": "Daftar",
+      "haveAccount": "Sudah punya akun?",
+      "signInLink": "Masuk"
+    },
+    "errors": {
+      "invalidCredentials": "Email atau kata sandi salah.",
+      "emailTaken": "Email ini sudah terdaftar. Coba masuk, atau gunakan email lain.",
+      "emailNotConfirmed": "Email belum dikonfirmasi. Cek inbox Anda untuk tautan konfirmasi, atau minta admin menonaktifkan konfirmasi email.",
+      "rateLimit": "Batas kirim email Supabase sudah tercapai (akibat banyak pendaftaran dalam waktu singkat). Tunggu beberapa menit, atau minta admin menonaktifkan konfirmasi email di dashboard.",
+      "weakPassword": "Kata sandi minimal 8 karakter.",
+      "signupDisabled": "Pendaftaran sementara dinonaktifkan oleh admin.",
+      "signInFail": "Tidak bisa masuk. Periksa email dan kata sandi.",
+      "signUpFail": "Tidak bisa mendaftar. Coba lagi sebentar.",
+      "generic": "Terjadi kesalahan. Coba lagi."
+    },
+    "close": "Tutup",
+    "submitting": "Memproses…"
+  },
+  "toast": {
+    "signedIn": "Selamat datang kembali.",
+    "signedUp": "Akun berhasil dibuat.",
+    "signedOut": "Anda sudah keluar.",
+    "signOutFail": "Tidak bisa keluar. Coba lagi.",
+    "saved": "Undangan tersimpan.",
+    "saveFail": "Tidak bisa menyimpan. Coba lagi.",
+    "copied": "Tautan disalin ke papan klip.",
+    "uploaded": "Foto diunggah.",
+    "uploadedMany": "{n} foto diunggah.",
+    "uploadFail": "Upload foto gagal. Coba lagi.",
+    "signInToUpload": "Masuk dulu untuk menambahkan foto."
+  },
+  "home": {
+    "eyebrow": "Untuk hari bahagiamu",
+    "headline": "Undangan yang terasa seperti Anda.",
+    "lede": "Pilih template, isi cerita kalian, bagikan ke tamu lewat satu tautan.",
+    "primaryCta": "Mulai buat",
+    "secondaryCta": "Lihat template"
+  },
+  "templates": {
+    "eyebrow": "Template",
+    "heading": "Pilih yang paling terasa seperti kalian.",
+    "lede": "Setiap template dirancang untuk satu hal: membuat cerita Anda mudah dibaca oleh orang-orang terdekat Anda.",
+    "empty": "Template sedang disiapkan. Mulai dulu — kami pilihkan saat Anda siap.",
+    "viewAll": "Lihat semua template",
+    "comingSoon": "Segera"
+  },
+  "howItWorks": {
+    "eyebrow": "Caranya",
+    "heading": "Tiga langkah, tidak lebih.",
+    "step1Title": "Pilih",
+    "step1Body": "Pilih template yang paling cocok dengan gaya Anda.",
+    "step2Title": "Isi",
+    "step2Body": "Ceritakan kisah kalian — nama, tanggal, tempat, dan beberapa detail kecil.",
+    "step3Title": "Bagikan",
+    "step3Body": "Dapatkan satu tautan. Kirim ke tamu lewat WhatsApp atau di mana pun."
+  },
+  "testimonials": {
+    "eyebrow": "Cerita",
+    "heading": "Cerita dari mereka yang sudah lebih dulu.",
+    "empty": "Cerita pertama akan datang dari Anda. Setelah menikah, bagikan pengalaman Anda dan jadilah yang pertama di sini."
+  },
+  "cta": {
+    "heading": "Siap memulai?",
+    "body": "Halaman undangan Anda menunggu. Tidak perlu kartu kredit.",
+    "button": "Mulai buat sekarang"
+  },
+  "faq": {
+    "eyebrow": "Pertanyaan",
+    "heading": "Yang sering ditanyakan.",
+    "items": [
+      {
+        "q": "Apa itu Lumio?",
+        "a": "Lumio adalah alat untuk membuat halaman undangan pernikahan yang bisa dibuka lewat satu tautan oleh siapa pun, di perangkat apa pun."
+      },
+      {
+        "q": "Berapa biayanya?",
+        "a": "Gratis untuk saat ini. Kami akan luncurkan template dan fitur premium segera."
+      },
+      {
+        "q": "Apakah tamu saya perlu membuat akun?",
+        "a": "Tidak. Tamu cukup membuka tautan undangannya — tidak ada login, tidak ada aplikasi yang perlu diunduh."
+      },
+      {
+        "q": "Bisakah saya mengubah desain setelah tautan dibagikan?",
+        "a": "Bisa, kapan saja. Perubahan langsung terlihat di tautan yang sama, tanpa perlu mengirim ulang."
+      },
+      {
+        "q": "Apakah data saya aman?",
+        "a": "Data undangan disimpan di infrastruktur yang terenkripsi. Kami tidak membagikan data Anda ke pihak ketiga."
+      }
+    ]
+  },
+  "footer": {
+    "line": "Made with care in Jakarta.",
+    "privacy": "Privasi",
+    "terms": "Ketentuan"
+  },
+  "design": {
+    "eyebrow": "Mulai",
+    "heading": "Pilih template, mulai cerita kalian.",
+    "lede": "Enam template, masing-masing dengan karakternya sendiri. Klik salah satu untuk mulai — bisa diganti kapan saja.",
+    "filterAria": "Filter berdasarkan kategori",
+    "categories": {
+      "all": "Semua",
+      "classic": "Klasik",
+      "modern": "Modern",
+      "floral": "Floral",
+      "editorial": "Editorial"
+    }
+  },
+  "editor": {
+    "editingTemplate": "Sedang mengedit",
+    "changeTemplate": "Ganti template",
+    "sectionsAria": "Bagian",
+    "save": "Simpan",
+    "saving": "Menyimpan…",
+    "saveAndSignup": "Daftar & simpan",
+    "previewLabel": "Pratinjau",
+    "fullPreview": "Halaman penuh",
+    "sectionTip": "Bagian ini tersimpan otomatis di perambanmu.",
+    "sectionOn": "Aktif",
+    "sectionOff": "Nonaktif",
+    "sectionToggleOn": "Aktifkan bagian",
+    "sectionToggleOff": "Nonaktifkan bagian",
+    "sectionDisabledMessage": "Bagian ini dinonaktifkan. Aktifkan untuk menambahkan konten.",
+    "allDisabledHint": "Semua bagian dinonaktifkan. Aktifkan setidaknya satu di editor.",
+    "defaultFromWeddingDate": "Otomatis dari tanggal pernikahan — timpa untuk mengubah.",
+    "close": "Tutup",
+    "savedTitle": "Undangan tersimpan.",
+    "savedBody": "Tautan di bawah ini siap dibagikan. Tamu cukup membukanya di browser.",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "backToDashboard": "Kembali",
+    "viewInvite": "Lihat undangan",
+    "errorSave": "Tidak bisa menyimpan. Coba lagi.",
+    "addPhoto": "Tambah foto",
+    "uploading": "Mengunggah…",
+    "removePhoto": "Hapus foto",
+    "uploadNotImage": "Hanya file gambar yang diperbolehkan.",
+    "uploadTooBig": "Ukuran foto maksimal 8 MB.",
+    "uploadFailed": "Upload gagal. Coba lagi."
+  },
+  "dashboard": {
+    "heading": "Karya saya",
+    "lede": "Semua yang pernah kamu buat, dalam satu tempat.",
+    "count": "{n} tersimpan",
+    "newCta": "Buat baru",
+    "view": "Lihat",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "statusDraft": "Draf",
+    "statusPublished": "Dipublikasikan",
+    "emptyTitle": "Belum ada yang tersimpan",
+    "emptyBody": "Halaman pertama Anda menunggu. Pilih template, isi cerita kalian, dan bagikan ke tamu lewat satu tautan.",
+    "emptyCta": "Mulai buat",
+    "emptyHelp": "Butuh bantuan?",
+    "errorLoad": "Tidak bisa memuat undangan ({code})."
+  },
+  "invite": {
+    "openInvite": "Undangan untuk Anda",
+    "openButton": "Buka undangan",
+    "openHint": "Sentuh tombol untuk membuka",
+    "madeWith": "Dibuat dengan"
+  },
+  "bloom": {
+    "meta": {
+      "title": "Bloom — sebuah hal kecil untuk seseorang",
+      "description": "Buket digital yang mekar lewat tautan. Setiap bunga membawa satu pesan, satu perasaan."
+    },
+    "home": {
+      "eyebrow": "Bloom",
+      "headline": "Sebuah hal kecil, untuk seseorang.",
+      "lede": "Buket digital yang mekar lewat tautan. Pilih bunganya, tulis pesannya, kirim ke orang yang kamu sayangi.",
+      "primaryCta": "Mulai buat",
+      "secondaryCta": "Lihat contoh"
+    },
+    "header": {
+      "bloom": "Bloom"
+    },
+    "flowers": {
+      "eyebrow": "Bunga-bunga",
+      "heading": "Setiap bunga punya arti.",
+      "lede": "Pilih bunganya, lalu beri pesan singkat untuk setiap kuntum.",
+      "rose": "Mawar",
+      "tulip": "Tulip",
+      "daisy": "Aster",
+      "sunflower": "Bunga matahari",
+      "lavender": "Lavender",
+      "peony": "Peony",
+      "blossom": "Sakura",
+      "lily": "Lily",
+      "hint": "Sentuh bunga untuk melihat artinya"
+    },
+    "howItWorks": {
+      "eyebrow": "Caranya",
+      "heading": "Tiga langkah. Tidak lebih.",
+      "step1Title": "Pilih bunga",
+      "step1Body": "Tiga sampai delapan bunga. Setiap bunga punya makna.",
+      "step2Title": "Tulis pesan",
+      "step2Body": "Satu kalimat singkat untuk setiap bunga, dan satu catatan untuk orang yang menerimanya.",
+      "step3Title": "Kirim",
+      "step3Body": "Bagikan satu tautan. Bunganya mekar saat dibuka."
+    },
+    "cta": {
+      "heading": "Mau kirim sekarang?",
+      "body": "Butuh waktu kurang dari lima menit.",
+      "button": "Mulai buat buket"
+    },
+    "fromLabel": "dari {name}",
+    "aSmallThing": "Sebuah hal kecil",
+    "forYou": "Untuk {name}.",
+    "forYouAnon": "Untuk kamu.",
+    "openBouquet": "Buka buket",
+    "tapToBloom": "Sentuh untuk membuat bunganya mekar",
+    "bouquetLabel": "Buket kamu",
+    "tapEach": "Sentuh setiap bunga.",
+    "hint": "Setiap bunga menyimpan satu pesan.",
+    "meanings": {
+      "love": "cinta",
+      "care": "perhatian",
+      "joy": "sukacita",
+      "warmth": "kehangatan",
+      "patience": "kesetiaan",
+      "grace": "kelembutan",
+      "memory": "kenangan",
+      "hope": "harap"
+    },
+    "allOpened": "Semua bunga sudah dibuka.",
+    "openedCount": "{count} dari {total} bunga sudah dibuka",
+    "readNote": "Baca pesannya",
+    "resetSelection": "Tutup"
+  },
+  "gift": {
+    "meta": {
+      "title": "Ada kiriman untukmu — Kaado",
+      "description": "Hadiah digital kecil, dikirim lewat satu tautan."
+    },
+    "index": {
+      "eyebrow": "Kaado",
+      "heading": "Hadiah kecil yang menempuh jarak jauh.",
+      "lede": "Untuk kalian yang terpisah kota atau zona waktu. Pilih template, isi ceritamu, kirim satu tautan — seluruh isi hadiah tersimpan di dalam tautannya.",
+      "makeCta": "Buat",
+      "demoCta": "Lihat contoh"
+    },
+    "editor": {
+      "back": "Semua template",
+      "editing": "Sedang mengedit",
+      "linkHint": "Tidak perlu akun. Seluruh isi hadiah dikemas ke dalam tautannya — salin, lalu kirim lewat WhatsApp.",
+      "mobile": "HP",
+      "desktop": "Desktop",
+      "viewportAria": "Ukuran pratinjau",
+      "restart": "Putar ulang",
+      "openTab": "Buka di tab baru",
+      "copyLink": "Salin tautan",
+      "copied": "Tautan tersalin. Siap dikirim.",
+      "copyFail": "Tidak bisa menyalin. Coba lagi.",
+      "missingRequired": "Isi dulu bagian bertanda * untuk membuat tautannya.",
+      "qr": "Kode QR",
+      "qrTitle": "Bagikan lewat QR",
+      "qrScan": "Pindai untuk membuka hadiahnya",
+      "qrFor": "Untuk {name}",
+      "qrForAnon": "Ada kiriman untukmu",
+      "copyImage": "Salin gambar",
+      "imageCopied": "Gambar tersalin.",
+      "copyImageFail": "Tidak bisa menyalin gambar. Simpan manual saja.",
+      "saveImage": "Simpan gambar",
+      "qrTooLong": "Isi hadiah terlalu panjang untuk kode QR. Persingkat suratnya, atau bagikan tautannya langsung.",
+      "close": "Tutup",
+      "save": "Simpan ke profil",
+      "saveAgain": "Perbarui simpanan",
+      "savingBtn": "Menyimpan…",
+      "saved": "Tersimpan di profilmu.",
+      "saveFail": "Gagal menyimpan. Coba lagi."
+    },
+    "player": {
+      "forYou": "Untuk {name}",
+      "forYouAnon": "Untukmu",
+      "fromLabel": "dari {name}",
+      "open": "Buka hadiahnya",
+      "yesFallback": "Mau",
+      "noFallback": "Nggak",
+      "readLetter": "Baca suratnya",
+      "letterGreeting": "Untuk {name},",
+      "letterGreetingAnon": "Untukmu,",
+      "playSong": "Putar lagunya",
+      "daysToGo": "{n} hari lagi kita ketemu",
+      "meetToday": "Hari ini kita ketemu",
+      "replyCta": "Balas dengan hadiah kecilmu",
+      "soundOn": "Nyalakan suara",
+      "soundOff": "Matikan suara",
+      "envelopeHintClosed": "Ketuk amplopnya",
+      "envelopeHintAjar": "Ketuk lagi untuk mengambil surat",
+      "coverHint": "Ketuk untuk membuka surat",
+      "flipToBack": "Balik suratnya",
+      "flipToFront": "Kembali ke surat",
+      "closeLetter": "Tutup surat"
+    }
+  }
+}
