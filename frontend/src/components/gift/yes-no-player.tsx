@@ -155,18 +155,9 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
       {stage === 'ask' && (
         <div className="gift-stage">
           <div className="gift-card gift-enter">
-            {photo ? (
-              <img
-                key={noCount}
-                src={photo}
-                alt=""
-                className={`gift-photo ${noCount > 0 ? 'gift-photo--wobble' : ''}`}
-              />
-            ) : (
-              <div key={noCount} className={noCount > 0 ? 'gift-photo--wobble' : ''}>
-                <Mascot mood={Math.min(noCount, 5) as 0 | 1 | 2 | 3 | 4 | 5} />
-              </div>
-            )}
+            <div key={noCount} className={noCount > 0 ? 'gift-photo--wobble' : ''}>
+              <Mascot mood={Math.min(noCount, 5) as 0 | 1 | 2 | 3 | 4 | 5} />
+            </div>
             <h1 className="gift-question">{data.question || ''}</h1>
             <p className="gift-plea" aria-live="polite">{plea}</p>
             <div className="gift-actions">
@@ -264,9 +255,9 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                 {ytId && (
                   <div className="gift-embed">
                     <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${ytId}`}
+                      src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1`}
                       title={data.song_title || 'YouTube'}
-                      allow="accelerometer; encrypted-media; picture-in-picture"
+                      allow="autoplay; accelerometer; encrypted-media; picture-in-picture"
                       allowFullScreen
                       loading="lazy"
                     />
@@ -275,9 +266,9 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                 {spEmbed && (
                   <iframe
                     className="gift-embed--spotify"
-                    src={spEmbed}
+                    src={`${spEmbed}?autoplay=1`}
                     title={data.song_title || 'Spotify'}
-                    allow="encrypted-media"
+                    allow="autoplay; encrypted-media"
                     loading="lazy"
                   />
                 )}

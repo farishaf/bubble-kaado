@@ -31,15 +31,16 @@ export function DashboardCard({ card, locale }: Props) {
   const accent = template?.accent ?? 'rose';
   const fakeCover: { [k: string]: string } = {};
 
+  // `Link` (from `@/i18n/routing`) auto-prepends the current locale, so this path must stay locale-free.
   const viewHref = gift
-    ? `/${locale}/g/${card.template_slug}?s=${card.slug}`
-    : `/${locale}/i/${card.slug}`;
+    ? `/g/${card.template_slug}?s=${card.slug}`
+    : `/i/${card.slug}`;
 
   const onCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const link = gift ? `${window.location.origin}${viewHref}` : card.url;
+      const link = gift ? `${window.location.origin}/${locale}${viewHref}` : card.url;
       await navigator.clipboard.writeText(link);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

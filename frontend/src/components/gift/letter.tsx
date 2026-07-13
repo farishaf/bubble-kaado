@@ -202,6 +202,7 @@ export function GiftLetter({
   const bodyRef = useRef<HTMLSpanElement>(null);
   const lyricsRef = useRef<HTMLDivElement>(null);
   const flipping = useRef(false);
+  const mainRevealed = useRef(false);
   const [face, setFace] = useState<Face>('cover');
   const [typed, setTyped] = useState(false);
 
@@ -209,6 +210,22 @@ export function GiftLetter({
 
   const { contextSafe } = useGSAP(
     () => {
+      // Spread reveal (photo + text sheets) the first time the main face mounts.
+      if (face !== 'main') mainRevealed.current = false;
+      if (face === 'main' && !mainRevealed.current) {
+        mainRevealed.current = true;
+        if (!reduced()) {
+          const sheets = gsap.utils.toArray<HTMLElement>('.gift-sheet', rootRef.current);
+          const frames = gsap.utils.toArray<HTMLElement>('.gift-frame', rootRef.current);
+          gsap.set(sheets, { opacity: 0, y: 18 });
+          gsap.set(frames, { opacity: 0, scale: 0.92 });
+          gsap
+            .timeline()
+            .to(sheets, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', stagger: 0.12 })
+            .to(frames, { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out', stagger: 0.08 }, '-=0.25');
+        }
+      }
+
       // Typewriter on the main face; lyric walk on the back face.
       if (face === 'main' && bodyRef.current && !typed) {
         const el = bodyRef.current;
@@ -298,20 +315,22 @@ export function GiftLetter({
         )}
 
         {face === 'main' && (
-          <div className={`gift-lface gift-lface--main gift-letter gift-letter--${variant}`}>
+          <div className="gift-lface gift-lface--main">
             <Stickers set={stickerSet} />
-            <div className="gift-lmain">
+            <div className="gift-spread">
               {photos && photos.length > 0 && (
-                <div className="gift-lmain__photos">
-                  {photos.map((src, i) => (
-                    <figure key={i} className="gift-polaroid">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" />
-                    </figure>
-                  ))}
+                <div className="gift-sheet gift-sheet--photos">
+                  <div className="gift-sheet__grid" data-count={photos.length}>
+                    {photos.map((src, i) => (
+                      <figure key={i} className="gift-frame">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={src} alt="" />
+                      </figure>
+                    ))}
+                  </div>
                 </div>
               )}
-              <div className="gift-lmain__text">
+              <div className={`gift-sheet gift-sheet--text gift-sheet--${variant}`}>
                 <p className="gift-letter__text">{greeting}</p>
                 <p className="gift-letter__text gift-letter__body" aria-label={body}>
                   <span ref={bodyRef} aria-hidden="true" />

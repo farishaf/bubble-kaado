@@ -106,7 +106,7 @@ export function GiftEditor({ template, locale }: Props) {
 
       if (savedSlug) {
         const res = await fetch(`${base}/api/invitations/${savedSlug}`, {
-          method: 'PUT',
+          method: 'POST',
           headers,
           body: JSON.stringify({ title, data: payload }),
         });
@@ -327,6 +327,38 @@ function GiftFieldInput({
   const base =
     'w-full font-body text-sm bg-paper border border-muted rounded-md px-3 py-2 text-ink placeholder:text-ink-3 focus:border-ink-2 transition-colors';
 
+  if (field.type === 'date') {
+    const enabled = value !== '';
+    return (
+      <div>
+        <div className="flex items-center justify-between gap-2">
+          <label htmlFor={id} className="font-body text-xs text-ink-2 uppercase tracking-wider">
+            {field.label}
+          </label>
+          <label className="inline-flex items-center gap-1.5 font-body text-xs text-ink-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={enabled}
+              onChange={(e) => onChange(e.target.checked ? new Date().toISOString().slice(0, 10) : '')}
+              className="h-3.5 w-3.5 accent-ink"
+            />
+            {t('toggleDate')}
+          </label>
+        </div>
+        {enabled && (
+          <input
+            id={id}
+            type="date"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className={`mt-1.5 ${base}`}
+          />
+        )}
+        {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
+      </div>
+    );
+  }
+
   if (field.type === 'photo-gallery') {
     return (
       <div>
@@ -404,7 +436,7 @@ function GiftFieldInput({
         ) : (
           <input
             id={id}
-            type={field.type === 'url' ? 'url' : field.type === 'date' ? 'date' : 'text'}
+            type={field.type === 'url' ? 'url' : 'text'}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
