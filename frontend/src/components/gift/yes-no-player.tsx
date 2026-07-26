@@ -415,11 +415,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
 
       {stage === 'ask' && (
         <div className="gift-stage">
-          <div className="gift-panel gift-enter">
-            <div className="gift-panel__band">
-              <span className="kd-kicker">{t('askKicker')}</span>
-              <PlusMark />
-            </div>
+          <div className="gift-panel gift-panel--bare gift-enter">
             <div className="gift-panel__body">
               <span className="gift-panel__corner" aria-hidden="true" />
               <div key={noCount} className={noCount > 0 ? 'gift-photo--wobble' : ''}>
@@ -450,10 +446,6 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                   </button>
                 )}
               </div>
-            </div>
-            <div className="gift-panel__foot">
-              <strong>Kaado</strong>
-              <span>{Math.min(noCount, MAX_NO)}/{MAX_NO}</span>
             </div>
           </div>
         </div>

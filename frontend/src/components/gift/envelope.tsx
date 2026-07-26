@@ -17,7 +17,7 @@ type Props = {
   onOpened: () => void;
 };
 
-const ENV_COLORS = ['cream', 'rose', 'kraft', 'sky'];
+const ENV_COLORS = ['cream', 'rose', 'kraft', 'sky', 'airmail', 'airmail-bold'];
 
 function DecorMark({ className }: { className: string }) {
   return (
