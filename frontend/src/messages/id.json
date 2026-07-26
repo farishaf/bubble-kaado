@@ -174,7 +174,11 @@
     "movePhotoRight": "Mundurkan urutan foto",
     "uploadNotImage": "Hanya file gambar yang diperbolehkan.",
     "uploadTooBig": "Ukuran foto maksimal 8 MB.",
-    "uploadFailed": "Upload gagal. Coba lagi."
+    "uploadFailed": "Upload gagal. Coba lagi.",
+    "cropPhoto": "Potong foto",
+    "cropTitle": "Potong foto",
+    "cropApply": "Terapkan",
+    "cropCancel": "Batal"
   },
   "dashboard": {
     "heading": "Karya saya",
@@ -307,7 +311,8 @@
       "saveAgain": "Perbarui simpanan",
       "savingBtn": "Menyimpan…",
       "saved": "Tersimpan di profilmu.",
-      "saveFail": "Gagal menyimpan. Coba lagi."
+      "saveFail": "Gagal menyimpan. Coba lagi.",
+      "emoji": "Sisipkan emoji"
     },
     "player": {
       "forYou": "Untuk {name}",
@@ -330,7 +335,12 @@
       "coverHint": "Ketuk untuk membuka surat",
       "flipToBack": "Balik suratnya",
       "flipToFront": "Kembali ke surat",
-      "closeLetter": "Tutup surat"
+      "closeLetter": "Tutup surat",
+      "audioPlay": "Putar",
+      "audioPause": "Jeda",
+      "introKicker": "Kiriman spesial",
+      "askKicker": "Pertanyaannya",
+      "yayKicker": "Perayaan kecil"
     }
   }
 }

@@ -174,7 +174,11 @@
     "movePhotoRight": "Move photo later",
     "uploadNotImage": "Only image files are allowed.",
     "uploadTooBig": "Each photo must be 8 MB or less.",
-    "uploadFailed": "Upload failed. Please try again."
+    "uploadFailed": "Upload failed. Please try again.",
+    "cropPhoto": "Crop photo",
+    "cropTitle": "Crop photo",
+    "cropApply": "Apply",
+    "cropCancel": "Cancel"
   },
   "dashboard": {
     "heading": "My creations",
@@ -307,7 +311,8 @@
       "saveAgain": "Update saved",
       "savingBtn": "Saving…",
       "saved": "Saved to your profile.",
-      "saveFail": "Couldn't save. Try again."
+      "saveFail": "Couldn't save. Try again.",
+      "emoji": "Insert emoji"
     },
     "player": {
       "forYou": "For {name}",
@@ -330,7 +335,12 @@
       "coverHint": "Tap to open the letter",
       "flipToBack": "Flip the letter",
       "flipToFront": "Back to the letter",
-      "closeLetter": "Close the letter"
+      "closeLetter": "Close the letter",
+      "audioPlay": "Play",
+      "audioPause": "Pause",
+      "introKicker": "Special delivery",
+      "askKicker": "The question",
+      "yayKicker": "A little celebration"
     }
   }
 }

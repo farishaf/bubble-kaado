@@ -8,10 +8,10 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       'Satu pertanyaan, dua tombol. Tombol nggak makin kecil setiap ditekan — sampai tersisa satu jawaban.',
     sections: [
       { id: 'basics', label: 'Dasar', fields: ['recipient_name', 'sender_name', 'question'] },
-      { id: 'buttons', label: 'Tombol & rayuan', fields: ['yes_label', 'no_label', 'no_lines', 'success_text'] },
-      { id: 'letter', label: 'Surat', fields: ['letter', 'letter_style', 'envelope_color', 'letter_front', 'stamp', 'sticker_set'] },
+      { id: 'buttons', label: 'Tombol & rayuan', fields: ['yes_label', 'no_label', 'no_mode', 'no_lines', 'success_text'] },
+      { id: 'letter', label: 'Surat', fields: ['letter', 'letter_style', 'envelope_color', 'stamp_sticker', 'letter_front', 'stamp', 'sticker_set'] },
       { id: 'photos', label: 'Foto', fields: ['photos'] },
-      { id: 'music', label: 'Musik', fields: ['song_title', 'song_artist', 'lyrics', 'youtube_url', 'spotify_url'] },
+      { id: 'music', label: 'Musik', fields: ['song_title', 'song_artist', 'lyrics', 'youtube_url', 'yt_start', 'yt_end', 'song_mode', 'spotify_url'] },
       { id: 'extras', label: 'Sentuhan akhir', fields: ['meet_date', 'theme'] },
     ],
     fields: [
@@ -40,6 +40,16 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       },
       { key: 'yes_label', label: 'Tombol iya', placeholder: 'Mau', type: 'text', maxLength: 20 },
       { key: 'no_label', label: 'Tombol nggak', placeholder: 'Nggak', type: 'text', maxLength: 20 },
+      {
+        key: 'no_mode',
+        label: 'Kelakuan tombol nggak',
+        type: 'select',
+        options: [
+          { value: 'dodge', label: 'Kabur dari kursor' },
+          { value: 'classic', label: 'Mengecil tiap ditekan (klasik)' },
+        ],
+        help: 'Kabur: tombolnya menghindar tiap mau ditekan. Setelah lima kali, dia menyerah.',
+      },
       {
         key: 'no_lines',
         label: 'Rayuan tiap dia menekan nggak',
@@ -76,6 +86,16 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
           { value: 'kraft', label: 'Kraft' },
           { value: 'sky', label: 'Biru langit' },
         ],
+      },
+      {
+        key: 'stamp_sticker',
+        label: 'Prangko amplop',
+        type: 'select',
+        options: [
+          { value: 'bloom', label: 'Bunga' },
+          { value: 'crane', label: 'Bangau origami' },
+        ],
+        help: 'Menempel di depan amplop, menggantikan nama penerima.',
       },
       {
         key: 'letter_front',
@@ -122,7 +142,32 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
         label: 'Tautan YouTube (opsional)',
         type: 'url',
         placeholder: 'https://youtu.be/…',
-        help: 'Lagunya langsung bisa diputar dari dalam hadiah.',
+        help: 'Lagunya langsung bisa diputar dari dalam hadiah. Teks (CC) otomatis menyala.',
+      },
+      {
+        key: 'yt_start',
+        label: 'Mulai dari menit (opsional)',
+        type: 'text',
+        placeholder: '0:45',
+        maxLength: 8,
+        help: 'Format menit:detik. Kosongkan untuk memutar dari awal.',
+      },
+      {
+        key: 'yt_end',
+        label: 'Berhenti di menit (opsional)',
+        type: 'text',
+        placeholder: '1:30',
+        maxLength: 8,
+      },
+      {
+        key: 'song_mode',
+        label: 'Tampilan lagunya',
+        type: 'select',
+        options: [
+          { value: 'video', label: 'Video YouTube' },
+          { value: 'audio', label: 'Audio saja (seperti mp3)' },
+        ],
+        help: 'Audio saja: videonya disembunyikan, piringan hitamnya yang berputar.',
       },
       {
         key: 'spotify_url',
@@ -159,6 +204,7 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       photos: '',
       yes_label: 'Mau',
       no_label: 'Nggak',
+      no_mode: 'dodge',
       no_lines: [
         'Yakin? Aku udah siapin playlist buat kita berdua…',
         'Hatiku retak pelan-pelan. Kedengeran sampai sana, kan?',
@@ -171,6 +217,7 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
         'Jarak segini cuma angka di peta.\nTiap malam aku tetap milih kamu, dari layar kecil ini.\nSampai nanti kita nggak perlu menghitung zona waktu lagi.',
       letter_style: 'plain',
       envelope_color: 'cream',
+      stamp_sticker: 'bloom',
       letter_front: 'classic',
       stamp: 'love',
       sticker_set: 'hearts',
@@ -178,6 +225,9 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       song_title: '',
       song_artist: '',
       youtube_url: '',
+      yt_start: '',
+      yt_end: '',
+      song_mode: 'video',
       spotify_url: '',
       meet_date: '',
       theme: 'rose',

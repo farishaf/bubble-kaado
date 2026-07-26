@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth/context';
 import { useToast } from '@/lib/ui/toast';
 import { Spinner } from '@/lib/ui/spinner';
 import { uploadImage, removeImage, imagePathFromUrl } from '@/lib/supabase/storage';
+import { CropModal } from './crop-modal';
 
 type Props = {
   value: string[];
@@ -24,6 +25,8 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cropIdx, setCropIdx] = useState<number | null>(null);
+  const dragIdx = useRef<number | null>(null);
 
   const remaining = Math.max(0, maxItems - value.length);
 
@@ -92,6 +95,33 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
     onChange(next);
   };
 
+  const onDropTo = (idx: number) => {
+    const from = dragIdx.current;
+    dragIdx.current = null;
+    if (from === null || from === idx) return;
+    const next = [...value];
+    const [moved] = next.splice(from, 1);
+    next.splice(idx, 0, moved);
+    onChange(next);
+  };
+
+  const onCropped = async (idx: number, blob: Blob) => {
+    if (!user) {
+      toast.show(tToast('signInToUpload'), { variant: 'info' });
+      return;
+    }
+    const file = new File([blob], 'crop.jpg', { type: 'image/jpeg' });
+    const oldUrl = value[idx];
+    const { url } = await uploadImage(file, user.id);
+    const next = [...value];
+    next[idx] = url;
+    onChange(next);
+    const path = imagePathFromUrl(oldUrl);
+    if (path) {
+      try { await removeImage(path); } catch { /* ignore */ }
+    }
+  };
+
   return (
     <div>
       {fieldLabel && (
@@ -99,8 +129,14 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
       )}
       <div className="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2">
         {value.map((url, i) => (
-          <div key={i}>
-            <div className="relative aspect-square rounded-md overflow-hidden border border-muted-2 group">
+          <div key={url}>
+            <div
+              className="relative aspect-square rounded-md overflow-hidden border border-muted-2 group cursor-grab active:cursor-grabbing"
+              draggable
+              onDragStart={() => { dragIdx.current = i; }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => onDropTo(i)}
+            >
               <img src={url} alt="" className="w-full h-full object-cover" />
               <span
                 aria-hidden
@@ -115,6 +151,16 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
                 className="absolute top-1 right-1 w-6 h-6 rounded-full bg-ink/80 text-paper text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 ×
+              </button>
+              <button
+                type="button"
+                onClick={() => setCropIdx(i)}
+                aria-label={t('cropPhoto')}
+                className="absolute top-1 right-8 w-6 h-6 rounded-full bg-ink/80 text-paper flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M3 0 V9 H12 M0 3 H9 V12" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                </svg>
               </button>
               {value.length > 1 && (
                 <div className="absolute bottom-1 inset-x-1 flex justify-between">
@@ -168,6 +214,19 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
       />
       {error && (
         <p role="alert" className="mt-2 font-body text-xs text-danger">{error}</p>
+      )}
+      {cropIdx !== null && value[cropIdx] && (
+        <CropModal
+          src={value[cropIdx]}
+          labels={{
+            title: t('cropTitle'),
+            apply: t('cropApply'),
+            cancel: t('cropCancel'),
+            busy: t('uploading'),
+          }}
+          onDone={(blob) => onCropped(cropIdx, blob)}
+          onClose={() => setCropIdx(null)}
+        />
       )}
     </div>
   );
