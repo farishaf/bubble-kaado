@@ -31,7 +31,7 @@ bubble-kaado/
 │   ├── internal/
 │   │   ├── config/           # env loading
 │   │   ├── logger/           # slog wrapper
-│   │   ├── middleware/       # requestid, cors, recover, auth
+│   │   ├── middleware/       # requestid, logger, cors, recover, auth
 │   │   ├── handlers/         # HTTP handlers
 │   │   ├── repository/       # sqlc-generated queries
 │   │   ├── supabase/         # JWT verifier (JWKS)
@@ -75,6 +75,58 @@ bubble-kaado/
 - `frontend/.env.local` — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_API_URL`
 
 If you must print env values to debug, prefix the value with `***` (e.g. `***gH...`) — never the full string.
+
+## Logging & observability
+
+**Every Go service in this repo (current and future) must wire this exact
+middleware chain, in this exact order, before any route registration:**
+
+```go
+r := gin.New()
+r.Use(middleware.RequestID())
+r.Use(middleware.RequestLogger(log))
+r.Use(middleware.Recover(log))
+r.Use(middleware.CORS(cfg.AllowedOrigins)) // or whatever's next for that service
+```
+
+`RequestLogger` must come **before** `Recover` (not after). Go's panic
+unwinding jumps straight to the nearest `recover()`, skipping every stack
+frame in between — including `RequestLogger`'s post-`c.Next()` logging code
+if it were nested inside `Recover`. With `RequestLogger` outer, a panic still
+produces a full request log line (status 500, path, duration, error) *in
+addition to* `Recover`'s own stack-trace log. Getting this order backwards is
+silent — nothing errors, panics just stop showing up in the request log.
+
+**Why this matters:** `backend/internal/middleware/logger.go` is what turns
+"something broke in prod" into a diagnosable line in the terminal, without
+reproducing the request. Skipping it on a new service means that service's
+failures are invisible until someone SSHes in and reproduces manually.
+
+**What you get per request** (one structured `slog` line to stdout, via
+`internal/logger`):
+
+- `method`, `path`, `status`, `duration_ms`, `request_id`, `client_ip`,
+  `bytes_in`, `bytes_out`, `user_agent`
+- on 4xx/5xx: `error` — read back from the response body's `{"error": "..."}`
+  field, and `internal_err` — anything a handler pushed via `c.Error(err)`
+  (use this for the real underlying error when the client-facing message is
+  deliberately generic, e.g. "internal server error" vs the actual DB error)
+
+**This depends on a convention new handlers must keep:** every failure
+response body must be `gin.H{"error": "<message>"}`. `RequestLogger` parses
+that shape back out for the log line; a handler that returns errors some
+other way (plain string, different key, no body) degrades to a raw-body
+dump instead of a clean `error` field.
+
+`request_id` is echoed back to the client via the `X-Request-ID` response
+header — when a user reports "it failed," ask for that header's value (or
+have the frontend surface it in its own error toast) and grep the backend
+log for it to find the exact request.
+
+Logs always go to stdout (`internal/logger`, `slog.NewTextHandler` in dev /
+`slog.NewJSONHandler` in production) — never `fmt.Println`/`log.Println`
+directly, and never write logs to a file. The process manager (systemd,
+`nohup` + redirect, Docker) owns log capture and rotation, not the app.
 
 ## Design discipline (Hallmark)
 
