@@ -9,6 +9,7 @@ import { AuthModal } from '@/components/auth-modal';
 import { encodeGift } from '@/lib/gift/encode';
 import type { GiftData, GiftField, GiftTemplate } from '@/lib/gift/types';
 import { PhotoUploader } from '@/components/editor/photo-uploader';
+import { EmojiButton } from '@/components/editor/emoji-button';
 import { giftPlayers } from './players';
 import { GiftQrModal } from './qr-modal';
 
@@ -205,131 +206,154 @@ export function GiftEditor({ template, locale }: Props) {
 
   const Player = giftPlayers[template.slug];
 
-  return (
-    <div className="mx-auto max-w-7xl px-6 py-8 md:py-10">
-      <div className="mb-8">
-        <a href={`/${locale}/gift`} className="font-body text-sm text-ink-2 hover:text-ink transition-colors">
-          ← {t('back')}
-        </a>
-        <p className="mt-3 font-body text-[10px] uppercase tracking-[0.2em] text-ink-2">{t('editing')}</p>
-        <h1 className="font-display text-2xl md:text-3xl text-ink">{template.name}</h1>
-        <p className="mt-2 font-body text-sm text-ink-2 max-w-prose">{t('linkHint')}</p>
-      </div>
+  const toolBtn =
+    'px-3 h-8 font-body text-[11px] uppercase tracking-wider rounded-sm border border-kd-forest/25 text-kd-forest hover:border-kd-forest hover:bg-kd-forest/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors';
 
-      <div className="grid lg:grid-cols-[400px_minmax(0,1fr)] gap-10 items-start">
-        <div className="order-2 lg:order-1 space-y-3">
-          {(template.sections ?? [{ id: 'all', label: template.name, fields: template.fields.map((f) => f.key) }]).map(
-            (section, i) => {
-              const fields = section.fields
-                .map((key) => template.fields.find((f) => f.key === key))
-                .filter((f): f is GiftField => Boolean(f));
-              const missing = fields.some(
-                (f) => f.required && (data[f.key] || '').trim() === ''
-              );
-              return (
-                <details
-                  key={section.id}
-                  open={i === 0}
-                  className="group rounded-lg border border-muted bg-paper"
-                >
-                  <summary className="flex items-center gap-2 px-4 py-3 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
-                    <span className="font-body text-xs uppercase tracking-[0.14em] text-ink">
-                      {section.label}
-                    </span>
-                    {missing && <span aria-hidden className="text-danger font-body text-xs">*</span>}
-                    <span className="flex-1" />
-                    <span
-                      aria-hidden
-                      className="text-ink-3 text-xs transition-transform group-open:rotate-90"
-                    >
-                      ▸
-                    </span>
-                  </summary>
-                  <div className="px-4 pb-4 pt-1 space-y-5 border-t border-muted-2">
-                    {fields.map((field) => (
-                      <GiftFieldInput
-                        key={field.key}
-                        field={field}
-                        value={data[field.key] ?? ''}
-                        onChange={(v) => setField(field.key, v)}
-                      />
-                    ))}
-                  </div>
-                </details>
-              );
-            }
-          )}
+  return (
+    <div className="bg-kd-paper min-h-dvh">
+      {/* header band: kicker + display title + spine column */}
+      <div className="mx-auto max-w-7xl px-6 pt-8 md:pt-10">
+        <div className="grid md:grid-cols-[minmax(0,1fr)_auto] gap-6 border-b-2 border-kd-forest pb-6 mb-8">
+          <div>
+            <a href={`/${locale}/gift`} className="font-body text-sm text-ink-2 hover:text-ink transition-colors">
+              ← {t('back')}
+            </a>
+            <p className="kd-kicker mt-4 text-kd-coral">{t('editing')}</p>
+            <h1 className="mt-1 font-display text-3xl md:text-5xl text-kd-forest tracking-[-0.02em] leading-[1.05]">
+              {template.name}
+            </h1>
+            <p className="mt-3 font-body text-sm text-ink-2 max-w-prose leading-[1.55]">{t('linkHint')}</p>
+          </div>
+          {/* spine treatment — vertical brand strip, desktop only */}
+          <div className="hidden md:flex items-stretch gap-3">
+            <div className="kd-dots w-10" aria-hidden="true" />
+            <div className="bg-kd-forest text-kd-cream px-3 py-4 flex flex-col items-center justify-between">
+              <span
+                className="font-display text-xl tracking-[0.14em]"
+                style={{ writingMode: 'vertical-rl' }}
+              >
+                Kaado
+              </span>
+              <span className="font-body text-[10px] tracking-[0.2em]" style={{ writingMode: 'vertical-rl' }}>
+                2026
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="order-1 lg:order-2 lg:sticky lg:top-24">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <div className="flex gap-1 rounded-pill border border-muted p-1" role="group" aria-label={t('viewportAria')}>
-              {(['mobile', 'desktop'] as const).map((vp) => (
+        <div className="grid lg:grid-cols-[400px_minmax(0,1fr)] gap-8 items-start pb-16">
+          {/* form column — repeating card-list panels, color-blocked */}
+          <div className="order-2 lg:order-1">
+            {(template.sections ?? [{ id: 'all', label: template.name, fields: template.fields.map((f) => f.key) }]).map(
+              (section, i) => {
+                const fields = section.fields
+                  .map((key) => template.fields.find((f) => f.key === key))
+                  .filter((f): f is GiftField => Boolean(f));
+                const missing = fields.some(
+                  (f) => f.required && (data[f.key] || '').trim() === ''
+                );
+                return (
+                  <details
+                    key={section.id}
+                    open={i === 0}
+                    className={`group border border-kd-forest/20 border-b-0 last:border-b first:rounded-t-md last:rounded-b-md overflow-hidden ${
+                      i % 2 === 0 ? 'bg-kd-cream' : 'bg-kd-sage/45'
+                    }`}
+                  >
+                    <summary className="flex items-center gap-3 px-4 py-3.5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+                      <span aria-hidden className="font-body text-[10px] font-semibold text-kd-coral tabular-nums">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span className="kd-kicker text-kd-forest">{section.label}</span>
+                      {missing && <span aria-hidden className="text-danger font-body text-xs">*</span>}
+                      <span className="flex-1" />
+                      <span
+                        aria-hidden
+                        className="text-kd-forest/50 text-xs transition-transform group-open:rotate-90"
+                      >
+                        ▸
+                      </span>
+                    </summary>
+                    <div className="px-4 pb-5 pt-2 space-y-5 border-t border-kd-forest/15">
+                      {fields.map((field) => (
+                        <GiftFieldInput
+                          key={field.key}
+                          field={field}
+                          value={data[field.key] ?? ''}
+                          onChange={(v) => setField(field.key, v)}
+                        />
+                      ))}
+                    </div>
+                  </details>
+                );
+              }
+            )}
+          </div>
+
+          {/* preview column — framed panel with forest toolbar */}
+          <div className="order-1 lg:order-2 lg:sticky lg:top-24">
+            <div className="border border-kd-forest/25 rounded-md overflow-hidden bg-kd-cream">
+              <div className="flex flex-wrap items-center gap-2 px-3 py-2.5 bg-kd-forest">
+                <div className="flex gap-1 rounded-sm border border-kd-cream/25 p-0.5" role="group" aria-label={t('viewportAria')}>
+                  {(['mobile', 'desktop'] as const).map((vp) => (
+                    <button
+                      key={vp}
+                      type="button"
+                      onClick={() => setViewport(vp)}
+                      aria-pressed={viewport === vp}
+                      className={`px-3 h-7 font-body text-[11px] uppercase tracking-wider rounded-sm transition-colors ${
+                        viewport === vp ? 'bg-kd-cream text-kd-forest' : 'text-kd-cream/70 hover:text-kd-cream'
+                      }`}
+                    >
+                      {t(vp)}
+                    </button>
+                  ))}
+                </div>
                 <button
-                  key={vp}
                   type="button"
-                  onClick={() => setViewport(vp)}
-                  aria-pressed={viewport === vp}
-                  className={`px-3 h-8 font-body text-xs rounded-pill transition-colors ${
-                    viewport === vp ? 'bg-ink text-paper' : 'text-ink-2 hover:text-ink'
+                  onClick={() => setPlayerKey((k) => k + 1)}
+                  className="px-3 h-7 font-body text-[11px] uppercase tracking-wider rounded-sm text-kd-cream/70 hover:text-kd-cream border border-kd-cream/25 transition-colors"
+                >
+                  {t('restart')}
+                </button>
+                <span className="flex-1" />
+                <span className="kd-kicker text-kd-cream/60 hidden sm:inline">{t('editing')}</span>
+              </div>
+              <div className="kd-dots p-4 md:p-6">
+                <div
+                  className={`mx-auto rounded-md border border-kd-forest/20 overflow-hidden shadow-2 bg-paper transition-all ${
+                    viewport === 'mobile' ? 'w-[375px] max-w-full' : 'w-full'
                   }`}
                 >
-                  {t(vp)}
+                  <div className="h-[600px] overflow-y-auto overscroll-contain">
+                    {Player && <Player key={playerKey} data={effective} />}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 px-3 py-3 border-t border-kd-forest/15">
+                <button type="button" onClick={() => void onQr()} disabled={!allRequiredFilled || saving} className={toolBtn}>
+                  {t('qr')}
                 </button>
-              ))}
+                <button type="button" onClick={onOpenTab} disabled={!allRequiredFilled} className={toolBtn}>
+                  {t('openTab')}
+                </button>
+                <button type="button" onClick={onSave} disabled={!allRequiredFilled || saving} className={toolBtn}>
+                  {saving ? t('savingBtn') : savedSlug ? t('saveAgain') : t('save')}
+                </button>
+                <span className="flex-1" />
+                <button
+                  type="button"
+                  onClick={() => void onCopy()}
+                  disabled={!allRequiredFilled}
+                  className="px-4 h-8 font-body text-[11px] uppercase tracking-wider rounded-sm bg-kd-coral text-kd-cream hover:brightness-105 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                >
+                  {t('copyLink')}
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setPlayerKey((k) => k + 1)}
-              className="px-3 h-8 font-body text-xs rounded-pill border border-muted text-ink-2 hover:text-ink hover:border-ink-2 transition-colors"
-            >
-              {t('restart')}
-            </button>
-            <div className="flex-1" />
-            <button
-              type="button"
-              onClick={() => void onQr()}
-              disabled={!allRequiredFilled || saving}
-              className="px-3 h-8 font-body text-xs rounded-pill border border-muted text-ink-2 hover:text-ink hover:border-ink-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {t('qr')}
-            </button>
-            <button
-              type="button"
-              onClick={onOpenTab}
-              disabled={!allRequiredFilled}
-              className="px-3 h-8 font-body text-xs rounded-pill border border-muted text-ink-2 hover:text-ink hover:border-ink-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {t('openTab')}
-            </button>
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={!allRequiredFilled || saving}
-              className="px-3 h-8 font-body text-xs rounded-pill border border-muted text-ink-2 hover:text-ink hover:border-ink-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {saving ? t('savingBtn') : savedSlug ? t('saveAgain') : t('save')}
-            </button>
-            <button
-              type="button"
-              onClick={() => void onCopy()}
-              disabled={!allRequiredFilled}
-              className="px-4 h-8 font-body text-xs rounded-pill bg-ink text-paper hover:bg-ink-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {t('copyLink')}
-            </button>
-          </div>
-          {!allRequiredFilled && (
-            <p className="mb-3 font-body text-xs text-ink-3">{t('missingRequired')}</p>
-          )}
-          <div
-            className={`mx-auto rounded-xl border border-muted overflow-hidden shadow-2 transition-all ${
-              viewport === 'mobile' ? 'w-[375px] max-w-full' : 'w-full'
-            }`}
-          >
-            <div className="h-[640px] overflow-y-auto overscroll-contain">
-              {Player && <Player key={playerKey} data={effective} />}
-            </div>
+            {!allRequiredFilled && (
+              <p className="mt-3 font-body text-xs text-ink-3">{t('missingRequired')}</p>
+            )}
           </div>
         </div>
       </div>
@@ -370,9 +394,25 @@ function GiftFieldInput({
 }) {
   const t = useTranslations('gift.editor');
   const [infoOpen, setInfoOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const id = `gift-field-${field.key}`;
   const base =
-    'w-full font-body text-sm bg-paper border border-muted rounded-md px-3 py-2 text-ink placeholder:text-ink-3 focus:border-ink-2 transition-colors';
+    'w-full font-body text-sm bg-paper border border-kd-forest/20 rounded-sm px-3 py-2 text-ink placeholder:text-ink-3 focus:border-kd-forest transition-colors';
+
+  const insertEmoji = (emoji: string) => {
+    const el = inputRef.current;
+    if (!el) {
+      onChange(value + emoji);
+      return;
+    }
+    const s = el.selectionStart ?? value.length;
+    const e = el.selectionEnd ?? s;
+    onChange(value.slice(0, s) + emoji + value.slice(e));
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(s + emoji.length, s + emoji.length);
+    });
+  };
 
   if (field.type === 'date') {
     const enabled = value !== '';
@@ -387,7 +427,7 @@ function GiftFieldInput({
               type="checkbox"
               checked={enabled}
               onChange={(e) => onChange(e.target.checked ? new Date().toISOString().slice(0, 10) : '')}
-              className="h-3.5 w-3.5 accent-ink"
+              className="h-3.5 w-3.5 accent-kd-forest"
             />
             {t('toggleDate')}
           </label>
@@ -421,22 +461,28 @@ function GiftFieldInput({
     );
   }
 
+  const emojiable = field.type === 'text' || field.type === 'textarea';
+
   return (
     <div>
-      <label htmlFor={id} className="font-body text-xs text-ink-2 uppercase tracking-wider">
-        {field.label}
-        {field.required && <span aria-hidden> *</span>}
-      </label>
-      {field.info && (
-        <button
-          type="button"
-          onClick={() => setInfoOpen(true)}
-          aria-label={field.info.title}
-          className="ml-1.5 inline-flex w-4 h-4 items-center justify-center rounded-full border border-muted text-ink-3 hover:text-ink hover:border-ink-2 font-body text-[10px] align-middle transition-colors"
-        >
-          i
-        </button>
-      )}
+      <div className="flex items-center gap-1.5">
+        <label htmlFor={id} className="font-body text-xs text-ink-2 uppercase tracking-wider">
+          {field.label}
+          {field.required && <span aria-hidden> *</span>}
+        </label>
+        {field.info && (
+          <button
+            type="button"
+            onClick={() => setInfoOpen(true)}
+            aria-label={field.info.title}
+            className="inline-flex w-4 h-4 items-center justify-center rounded-full border border-muted text-ink-3 hover:text-ink hover:border-ink-2 font-body text-[10px] transition-colors"
+          >
+            i
+          </button>
+        )}
+        <span className="flex-1" />
+        {emojiable && <EmojiButton onPick={insertEmoji} label={t('emoji')} />}
+      </div>
       {infoOpen && field.info && (
         <div
           className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-ink/40"
@@ -454,7 +500,7 @@ function GiftFieldInput({
               <button
                 type="button"
                 onClick={() => setInfoOpen(false)}
-                className="px-4 h-9 font-body text-xs rounded-pill border border-muted text-ink-2 hover:text-ink hover:border-ink-2 transition-colors"
+                className="px-4 h-9 font-body text-xs rounded-sm border border-muted text-ink-2 hover:text-ink hover:border-ink-2 transition-colors"
               >
                 {t('close')}
               </button>
@@ -466,6 +512,7 @@ function GiftFieldInput({
         {field.type === 'textarea' ? (
           <textarea
             id={id}
+            ref={(el) => { inputRef.current = el; }}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
@@ -484,6 +531,7 @@ function GiftFieldInput({
         ) : (
           <input
             id={id}
+            ref={(el) => { inputRef.current = el; }}
             type={field.type === 'url' ? 'url' : 'text'}
             value={value}
             onChange={(e) => onChange(e.target.value)}
