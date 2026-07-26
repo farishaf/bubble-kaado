@@ -53,6 +53,7 @@ func main() {
 	r := gin.New()
 	r.Use(middleware.RequestID())
 	r.Use(middleware.Recover(log))
+	r.Use(middleware.RequestLogger(log))
 	r.Use(middleware.CORS(cfg.AllowedOrigins))
 
 	handlers.RegisterHealth(r, pool)

@@ -78,13 +78,15 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       },
       {
         key: 'envelope_color',
-        label: 'Warna amplop',
+        label: 'Desain amplop',
         type: 'select',
         options: [
           { value: 'cream', label: 'Krem' },
           { value: 'rose', label: 'Merah muda' },
           { value: 'kraft', label: 'Kraft' },
           { value: 'sky', label: 'Biru langit' },
+          { value: 'airmail', label: 'Pos udara' },
+          { value: 'airmail-bold', label: 'Pos udara tebal' },
         ],
       },
       {
