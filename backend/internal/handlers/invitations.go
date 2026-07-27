@@ -94,6 +94,7 @@ func (h *InvitationsHandler) Create(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "slug already in use"})
 			return
 		}
+		_ = c.Error(err) // real cause lands in the request log as internal_err
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "create failed"})
 		return
 	}
@@ -153,6 +154,7 @@ func (h *InvitationsHandler) Update(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "slug already in use"})
 			return
 		}
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
 		return
 	}
@@ -176,6 +178,7 @@ func (h *InvitationsHandler) ListMine(c *gin.Context) {
 	}
 	cards, err := h.q.ListCardsByUser(c.Request.Context(), userIDToUUID(user.ID))
 	if err != nil {
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "list failed"})
 		return
 	}
@@ -203,6 +206,7 @@ func (h *InvitationsHandler) GetBySlug(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "lookup failed"})
 		return
 	}
