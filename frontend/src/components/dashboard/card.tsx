@@ -35,6 +35,8 @@ export function DashboardCard({ card, locale }: Props) {
   const viewHref = gift
     ? `/g/${card.template_slug}?s=${card.slug}`
     : `/i/${card.slug}`;
+  // Only gift templates have an editor route wired up; the rest stay view-only.
+  const editHref = gift ? `/gift/${card.template_slug}?edit=${card.slug}` : null;
 
   const onCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -79,10 +81,18 @@ export function DashboardCard({ card, locale }: Props) {
         </div>
         <p className="mt-1 font-body text-xs text-ink-3 truncate">/{card.slug}</p>
         <div className="mt-4 flex gap-2">
+          {editHref && (
+            <Link
+              href={editHref}
+              className="flex-1 font-body text-xs px-3 h-8 inline-flex items-center justify-center bg-ink text-paper rounded-pill hover:bg-ink-2 transition-colors"
+            >
+              {t('edit')}
+            </Link>
+          )}
           <Link
             href={viewHref}
             target="_blank"
-            className="flex-1 font-body text-xs px-3 h-8 inline-flex items-center justify-center bg-ink text-paper rounded-pill hover:bg-ink-2 transition-colors"
+            className="flex-1 font-body text-xs px-3 h-8 inline-flex items-center justify-center border border-muted rounded-pill hover:border-ink-2 hover:text-ink text-ink-2 transition-colors"
           >
             {t('view')} →
           </Link>

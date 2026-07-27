@@ -191,6 +191,7 @@
     "lede": "Semua yang pernah kamu buat, dalam satu tempat.",
     "count": "{n} tersimpan",
     "newCta": "Buat baru",
+    "edit": "Ubah",
     "view": "Lihat",
     "copy": "Salin",
     "copied": "Tersalin",
@@ -318,6 +319,7 @@
       "savingBtn": "Menyimpan…",
       "saved": "Tersimpan di profilmu.",
       "saveFail": "Gagal menyimpan. Coba lagi.",
+      "loadFail": "Gagal memuat hadiah ini. Coba lagi.",
       "emoji": "Sisipkan emoji",
       "linkLabel": "Tautan hadiahnya",
       "linkUpdate": "Perbarui tautan",
@@ -349,10 +351,7 @@
       "flipToFront": "Kembali ke surat",
       "closeLetter": "Tutup surat",
       "audioPlay": "Putar",
-      "audioPause": "Jeda",
-      "introKicker": "Kiriman spesial",
-      "askKicker": "Pertanyaannya",
-      "yayKicker": "Perayaan kecil"
+      "audioPause": "Jeda"
     }
   }
 }
