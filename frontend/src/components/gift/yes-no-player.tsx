@@ -11,7 +11,8 @@ import { Mascot } from './mascot';
 
 type Stage = 'intro' | 'ask' | 'yay' | 'envelope' | 'letter';
 
-const MAX_NO = 5;
+/** Mascot has 6 drawn moods; the count keeps climbing past this, the face doesn't. */
+const MAX_MOOD = 5;
 
 function daysUntil(iso: string): number | null {
   if (!iso) return null;
@@ -38,181 +39,71 @@ function parseTime(v: string): number | undefined {
   return Number.isFinite(s) && s >= 0 ? s : undefined;
 }
 
-function spotifyUri(url: string): string | null {
-  const m = url.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/i);
-  return m ? `spotify:${m[1].toLowerCase()}:${m[2]}` : null;
-}
+const clampJump = (v: number, limit: number) => Math.max(-limit, Math.min(limit, v));
 
-type SpotifyController = {
-  destroy: () => void;
-  play: () => void;
-  addListener: (event: string, cb: () => void) => void;
-};
+/* ── Uploaded-MP3 bar ───────────────────────────────────────────────── */
 
-type SpotifyIframeApi = {
-  createController: (
-    el: HTMLElement,
-    options: { uri: string; height?: number | string; width?: number | string },
-    cb: (controller: SpotifyController) => void
-  ) => void;
-};
-
-let spotifyApiPromise: Promise<SpotifyIframeApi> | null = null;
-
-function loadSpotifyApi(): Promise<SpotifyIframeApi> {
-  if (!spotifyApiPromise) {
-    spotifyApiPromise = new Promise((resolve) => {
-      (window as Window & { onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void }).onSpotifyIframeApiReady =
-        resolve;
-      const s = document.createElement('script');
-      s.src = 'https://open.spotify.com/embed/iframe-api/v1';
-      s.async = true;
-      document.body.appendChild(s);
-    });
-  }
-  return spotifyApiPromise;
-}
-
-function SpotifyEmbed({ uri }: { uri: string }) {
-  const hostRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    const target = document.createElement('div');
-    host.appendChild(target);
-    let controller: SpotifyController | null = null;
-    let cancelled = false;
-    void loadSpotifyApi().then((api) => {
-      if (cancelled) return;
-      api.createController(target, { uri, height: 152 }, (c) => {
-        if (cancelled) {
-          c.destroy();
-          return;
-        }
-        controller = c;
-        // ponytail: autoplay via iFrame API; the browser can still veto audio
-        // without a fresh gesture — the embed then just shows its play button
-        c.addListener('ready', () => c.play());
-      });
-    });
-    return () => {
-      cancelled = true;
-      controller?.destroy();
-      host.replaceChildren();
-    };
-  }, [uri]);
-
-  return <div ref={hostRef} className="gift-embed--spotify" />;
-}
-
-/* ── YouTube audio-only ("mp3") bar via the IFrame API ─────────────── */
-
-type YTPlayer = {
-  playVideo: () => void;
-  pauseVideo: () => void;
-  destroy: () => void;
-};
-
-type YTNamespace = {
-  Player: new (
-    el: HTMLElement,
-    options: {
-      videoId: string;
-      playerVars?: Record<string, string | number>;
-      events?: {
-        onReady?: () => void;
-        onStateChange?: (e: { data: number }) => void;
-      };
-    }
-  ) => YTPlayer;
-  PlayerState: { PLAYING: number };
-};
-
-let ytApiPromise: Promise<YTNamespace> | null = null;
-
-function loadYouTubeApi(): Promise<YTNamespace> {
-  if (!ytApiPromise) {
-    ytApiPromise = new Promise((resolve) => {
-      const w = window as Window & { YT?: YTNamespace; onYouTubeIframeAPIReady?: () => void };
-      if (w.YT?.Player) {
-        resolve(w.YT);
-        return;
-      }
-      w.onYouTubeIframeAPIReady = () => resolve(w.YT as YTNamespace);
-      const s = document.createElement('script');
-      s.src = 'https://www.youtube.com/iframe_api';
-      s.async = true;
-      document.body.appendChild(s);
-    });
-  }
-  return ytApiPromise;
-}
-
-function YouTubeAudioBar({
-  videoId,
+function Mp3Bar({
+  src,
   start,
   end,
-  ccLang,
   title,
   artist,
   photo,
   labels,
 }: {
-  videoId: string;
+  src: string;
   start?: number;
   end?: number;
-  ccLang: string;
   title?: string;
   artist?: string;
   photo?: string;
   labels: { play: string; pause: string };
 }) {
-  const hostRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<YTPlayer | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    const target = document.createElement('div');
-    host.appendChild(target);
-    let cancelled = false;
-    void loadYouTubeApi().then((YT) => {
-      if (cancelled) return;
-      playerRef.current = new YT.Player(target, {
-        videoId,
-        playerVars: {
-          autoplay: 1,
-          playsinline: 1,
-          cc_load_policy: 1,
-          cc_lang_pref: ccLang,
-          ...(start !== undefined ? { start } : {}),
-          ...(end !== undefined ? { end } : {}),
-        },
-        events: {
-          onStateChange: (e) => setPlaying(e.data === YT.PlayerState.PLAYING),
-        },
-      });
-    });
-    return () => {
-      cancelled = true;
-      playerRef.current?.destroy();
-      playerRef.current = null;
-      host.replaceChildren();
+    const el = audioRef.current;
+    if (!el) return;
+    const seekToStart = () => {
+      if (start !== undefined) el.currentTime = start;
     };
-  }, [videoId, start, end, ccLang]);
+    // Stop at the trim point rather than running to the end of the file.
+    const onTime = () => {
+      if (end !== undefined && el.currentTime >= end) el.pause();
+    };
+    el.addEventListener('loadedmetadata', seekToStart);
+    el.addEventListener('timeupdate', onTime);
+    // ponytail: autoplay is best-effort — a browser with no prior gesture
+    // vetoes it and the recipient just taps play.
+    void el.play().catch(() => {});
+    return () => {
+      el.removeEventListener('loadedmetadata', seekToStart);
+      el.removeEventListener('timeupdate', onTime);
+    };
+  }, [src, start, end]);
 
   const toggle = () => {
-    const p = playerRef.current;
-    if (!p) return;
-    if (playing) p.pauseVideo();
-    else p.playVideo();
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+    } else {
+      if (start !== undefined && (end === undefined || el.currentTime >= end)) el.currentTime = start;
+      void el.play().catch(() => {});
+    }
   };
 
   return (
     <div className="gift-audiobar" data-playing={playing}>
-      <div className="gift-audiobar__host" ref={hostRef} aria-hidden="true" />
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="metadata"
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+      />
       <Vinyl size={54} photo={photo} clipId="gift-vinyl-label-audio" />
       <div className="gift-audiobar__meta">
         {title && <p className="gift-audiobar__title">{title}</p>}
@@ -291,24 +182,24 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const recipient = (data.recipient_name || '').trim();
   const sender = (data.sender_name || '').trim();
   const theme = data.theme || 'rose';
-  const dodge = (data.no_mode || 'dodge') !== 'classic';
   const noLines = useMemo(
     () => (data.no_lines || '').split('\n').map((l) => l.trim()).filter(Boolean),
     [data.no_lines]
   );
-  const plea = noCount > 0 && noLines.length > 0 ? noLines[Math.min(noCount, noLines.length) - 1] : '';
+  // The button never surrenders, so the lines loop instead of running out.
+  const plea = noCount > 0 && noLines.length > 0 ? noLines[(noCount - 1) % noLines.length] : '';
   const days = daysUntil(data.meet_date || '');
   const photos = useMemo(
     () => (data.photos || '').split('\n').map((u) => u.trim()).filter(Boolean),
     [data.photos]
   );
-  const ytId = youtubeId((data.youtube_url || '').trim());
-  const ytStart = parseTime(data.yt_start || '');
-  const ytEnd = parseTime(data.yt_end || '');
-  const audioOnly = (data.song_mode || 'video') === 'audio';
-  const spUri = spotifyUri((data.spotify_url || '').trim());
-  const fallbackSongUrl =
-    !ytId && !spUri ? (data.youtube_url || data.spotify_url || '').trim() : '';
+  const source = (data.song_source || 'youtube') === 'mp3' ? 'mp3' : 'youtube';
+  const mp3Url = source === 'mp3' ? (data.mp3_url || '').trim() : '';
+  const ytId = source === 'youtube' ? youtubeId((data.youtube_url || '').trim()) : null;
+  const trim = (data.trim_song || '') === '1';
+  const ytStart = trim ? parseTime(data.yt_start || '') : undefined;
+  const ytEnd = trim ? parseTime(data.yt_end || '') : undefined;
+  const fallbackSongUrl = source === 'youtube' && !ytId ? (data.youtube_url || '').trim() : '';
   const lyrics = useMemo(
     () => (data.lyrics || '').split('\n').map((l) => l.trim()).filter(Boolean),
     [data.lyrics]
@@ -317,7 +208,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
     Boolean((data.song_title || '').trim() || (data.song_artist || '').trim()) ||
     lyrics.length > 0 ||
     Boolean(fallbackSongUrl);
-  const hasEmbeds = Boolean(ytId) || Boolean(spUri);
+  const hasEmbeds = Boolean(ytId) || Boolean(mp3Url);
 
   const ytSrc = useMemo(() => {
     if (!ytId) return '';
@@ -345,20 +236,26 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
     setTimeout(() => setStage('ask'), 620);
   };
 
-  const onNo = () => {
-    if (noCount >= MAX_NO) return;
+  // The button flees along the vector away from the pointer, so it can never be
+  // cornered — a random jump could land back under the cursor. Jitter keeps it
+  // from settling into a predictable orbit.
+  const onNo = (e: { clientX: number; clientY: number; currentTarget: Element }) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const dx = box.left + box.width / 2 - e.clientX;
+    const dy = box.top + box.height / 2 - e.clientY;
+    const len = Math.hypot(dx, dy) || 1;
+    const jitter = () => (Math.random() - 0.5) * 40;
     giftSound.no(noCount + 1);
-    setNoCount((c) => Math.min(c + 1, MAX_NO));
-    setNoJump({
-      x: (Math.random() - 0.5) * (dodge ? 140 : 72),
-      y: (Math.random() - 0.5) * (dodge ? 70 : 40),
-    });
+    setNoCount((c) => c + 1);
+    setNoJump((prev) => ({
+      x: clampJump(prev.x + (dx / len) * 90 + jitter(), 130),
+      y: clampJump(prev.y + (dy / len) * 60 + jitter(), 70),
+    }));
   };
 
   const onYes = () => {
     giftSound.yes();
     setStage('yay');
-    if (rootRef.current) burstConfetti(rootRef.current);
   };
 
   const onReadLetter = () => {
@@ -367,8 +264,8 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   };
 
   const photo = photos[0] || '';
-  const yesScale = 1 + noCount * 0.09;
-  const noScale = dodge ? 1 : Math.max(0.3, 1 - noCount * 0.15);
+  // Capped so a stubborn recipient can't grow the button out of the panel.
+  const yesScale = Math.min(1 + noCount * 0.09, 1.6);
 
   return (
     <div ref={rootRef} className="gift-root" data-gift-theme={theme}>
@@ -420,7 +317,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               <span className="gift-panel__corner" aria-hidden="true" />
               <div key={noCount} className={noCount > 0 ? 'gift-photo--wobble' : ''}>
                 <span className="gift-mascot-frame kd-stamp-edge">
-                  <Mascot mood={Math.min(noCount, 5) as 0 | 1 | 2 | 3 | 4 | 5} />
+                  <Mascot mood={Math.min(noCount, MAX_MOOD) as 0 | 1 | 2 | 3 | 4 | 5} />
                 </span>
               </div>
               <h1 className="gift-question">{data.question || ''}</h1>
@@ -434,17 +331,22 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                 >
                   {data.yes_label || t('yesFallback')}
                 </button>
-                {noCount < MAX_NO && (
-                  <button
-                    type="button"
-                    className={`gift-btn gift-btn--no ${dodge ? 'gift-btn--dodge' : ''}`}
-                    style={{ transform: `translate(${noJump.x}px, ${noJump.y}px) scale(${noScale})` }}
-                    onPointerEnter={dodge ? onNo : undefined}
-                    onClick={dodge ? (e) => e.preventDefault() : onNo}
-                  >
-                    {data.no_label || t('noFallback')}
-                  </button>
-                )}
+                <button
+                  type="button"
+                  aria-disabled="true"
+                  className="gift-btn gift-btn--no gift-btn--dodge"
+                  style={{ transform: `translate(${noJump.x}px, ${noJump.y}px)` }}
+                  onPointerEnter={onNo}
+                  onPointerDown={(e) => {
+                    // Touch has no hover, so the tap-down itself triggers the
+                    // dodge — the reaction still fires, the press never lands.
+                    e.preventDefault();
+                    onNo(e);
+                  }}
+                  onClick={(e) => e.preventDefault()}
+                >
+                  {data.no_label || t('noFallback')}
+                </button>
               </div>
             </div>
           </div>
@@ -496,7 +398,12 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                   title={recipient ? t('forYou', { name: recipient }) : t('forYouAnon')}
                 />
               }
-              onOpened={() => setStage('letter')}
+              // Confetti fires as the letter stage mounts, which is the same
+              // beat the song starts on — one moment, not two.
+              onOpened={() => {
+                setStage('letter');
+                if (rootRef.current) burstConfetti(rootRef.current);
+              }}
             />
           </div>
         </div>
@@ -509,6 +416,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               style={data.letter_style}
               front={data.letter_front || 'classic'}
               stampKind={data.stamp || 'love'}
+              stampImage={(data.stamp_custom || '').split('\n')[0]?.trim() || undefined}
               stickerSet={data.sticker_set || 'hearts'}
               coverTitle={recipient ? t('forYou', { name: recipient }) : t('forYouAnon')}
               coverHint={t('coverHint')}
@@ -538,30 +446,28 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
 
             {hasEmbeds && (
               <div className="gift-song">
-                {ytId &&
-                  (audioOnly ? (
-                    <YouTubeAudioBar
-                      videoId={ytId}
-                      start={ytStart}
-                      end={ytEnd}
-                      ccLang={locale}
-                      title={(data.song_title || '').trim()}
-                      artist={(data.song_artist || '').trim()}
-                      photo={photo}
-                      labels={{ play: t('audioPlay'), pause: t('audioPause') }}
+                {ytId && (
+                  <div className="gift-embed">
+                    <iframe
+                      src={ytSrc}
+                      title={data.song_title || 'YouTube'}
+                      allow="autoplay; accelerometer; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
                     />
-                  ) : (
-                    <div className="gift-embed">
-                      <iframe
-                        src={ytSrc}
-                        title={data.song_title || 'YouTube'}
-                        allow="autoplay; accelerometer; encrypted-media; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
-                {spUri && <SpotifyEmbed uri={spUri} />}
+                  </div>
+                )}
+                {mp3Url && (
+                  <Mp3Bar
+                    src={mp3Url}
+                    start={ytStart}
+                    end={ytEnd}
+                    title={(data.song_title || '').trim()}
+                    artist={(data.song_artist || '').trim()}
+                    photo={photo}
+                    labels={{ play: t('audioPlay'), pause: t('audioPause') }}
+                  />
+                )}
               </div>
             )}
 

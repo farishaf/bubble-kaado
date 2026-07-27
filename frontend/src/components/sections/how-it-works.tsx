@@ -6,28 +6,27 @@ export async function HowItWorks({ locale }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations('howItWorks');
   const steps = [
-    { n: 'I', title: t('step1Title'), body: t('step1Body') },
-    { n: 'II', title: t('step2Title'), body: t('step2Body') },
-    { n: 'III', title: t('step3Title'), body: t('step3Body') },
+    { n: '01', title: t('step1Title'), body: t('step1Body') },
+    { n: '02', title: t('step2Title'), body: t('step2Body') },
+    { n: '03', title: t('step3Title'), body: t('step3Body') },
   ];
   return (
-    <section className="border-t border-muted-2">
+    <section className="bg-kd-paper">
       <div className="mx-auto max-w-6xl px-6 py-20 md:py-28">
         <div data-animate="reveal" className="max-w-2xl">
-          <p className="font-body text-xs uppercase tracking-[0.18em] text-ink-2 mb-4">
-            {t('eyebrow')}
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl text-ink tracking-[-0.01em] leading-[1.1]">
+          <p className="kd-kicker text-kd-coral-ink mb-4">{t('eyebrow')}</p>
+          <h2 className="font-display text-3xl md:text-4xl text-kd-forest tracking-[-0.01em] leading-[1.1]">
             {t('heading')}
           </h2>
         </div>
         <ol className="mt-14 grid md:grid-cols-3 gap-10 md:gap-8">
           {steps.map((s) => (
-            <li key={s.n} data-animate="step" className="border-t border-muted pt-6">
-              <p className="font-display text-sm text-accent tracking-widest mb-3">
+            <li key={s.n} data-animate="step">
+              <span data-animate="rule" aria-hidden className="kd-rule w-full mb-5" />
+              <p className="font-body text-xs font-semibold text-kd-coral-ink tabular-nums tracking-[0.16em] mb-3">
                 {s.n}
               </p>
-              <h3 className="font-display text-xl text-ink mb-2">{s.title}</h3>
+              <h3 className="font-display text-xl text-kd-forest mb-2">{s.title}</h3>
               <p className="font-body text-base text-ink-2 leading-[1.55]">{s.body}</p>
             </li>
           ))}

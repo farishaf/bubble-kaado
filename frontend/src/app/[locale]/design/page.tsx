@@ -22,17 +22,14 @@ export default async function DesignPage({ params }: Props) {
     <>
       <Header />
       <DesignAnimations />
-      <main>
+      <main className="bg-kd-paper">
         <section className="mx-auto max-w-6xl px-6 pt-16 pb-12 md:pt-24">
-          <p
-            data-animate="design-hero"
-            className="font-body text-xs uppercase tracking-[0.18em] text-ink-2 mb-4"
-          >
+          <p data-animate="design-hero" className="kd-kicker text-kd-coral-ink mb-4">
             {t('eyebrow')}
           </p>
           <h1
             data-animate="design-hero"
-            className="font-display text-[clamp(2.25rem,6vw,4rem)] text-ink tracking-[-0.02em] leading-[1.05] max-w-3xl"
+            className="font-display text-[clamp(2.25rem,6vw,4rem)] text-kd-forest tracking-[-0.02em] leading-[1.05] max-w-3xl [overflow-wrap:anywhere] min-w-0"
           >
             {t('heading')}
           </h1>
@@ -43,7 +40,7 @@ export default async function DesignPage({ params }: Props) {
             {t('lede')}
           </p>
         </section>
-        <section className="border-t border-muted-2">
+        <section>
           <div className="mx-auto max-w-6xl px-6 py-12 md:py-16">
             <TemplateGrid
               templates={TEMPLATES}
