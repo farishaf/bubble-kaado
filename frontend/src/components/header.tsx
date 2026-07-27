@@ -86,27 +86,27 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-muted-2 bg-paper/85 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b-2 border-kd-forest bg-kd-paper/90 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between gap-6">
-          <Link href="/" className="font-display text-xl text-ink tracking-tight">
+          <Link href="/" className="font-display text-xl text-kd-forest tracking-tight">
             {t('brand')}
           </Link>
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/design"
-              className="font-body text-sm text-ink-2 hover:text-ink transition-colors"
+              className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
             >
               {t('design')}
             </Link>
             <Link
               href="/bloom"
-              className="font-body text-sm text-ink-2 hover:text-ink transition-colors"
+              className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
             >
               {t('bloom')}
             </Link>
             <Link
               href="/gift"
-              className="font-body text-sm text-ink-2 hover:text-ink transition-colors"
+              className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
             >
               {t('gift')}
             </Link>
@@ -115,7 +115,7 @@ export function Header() {
             <Link
               href="/"
               locale="en"
-              className="font-body text-xs text-ink-2 hover:text-ink transition-colors px-2 py-1 rounded-md"
+              className="font-body text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors px-2 py-1 rounded-sm"
               aria-label="Switch language"
             >
               {t('languageToggle')}
@@ -128,7 +128,7 @@ export function Header() {
                   aria-expanded={menuOpen}
                   aria-haspopup="menu"
                   disabled={signingOut}
-                  className="w-9 h-9 inline-flex items-center justify-center bg-accent text-accent-ink rounded-pill font-body text-sm font-medium hover:bg-accent-2 transition-colors disabled:opacity-60"
+                  className="w-9 h-9 inline-flex items-center justify-center bg-kd-forest text-kd-cream rounded-sm font-body text-xs font-semibold tracking-wider hover:bg-kd-forest-2 transition-colors disabled:opacity-60"
                   title={user.email ?? ''}
                 >
                   {signingOut ? <Spinner size={14} /> : initials}
@@ -137,10 +137,11 @@ export function Header() {
                   <div
                     ref={dropdownPanelRef}
                     role="menu"
-                    className="absolute right-0 top-full mt-2 w-64 bg-paper border border-muted-2 rounded-md shadow-3 p-1.5 z-50"
+                    className="absolute right-0 top-full mt-2 w-64 kd-sheet border border-kd-forest/20 rounded-sm shadow-3 p-1.5 z-50"
                   >
-                    <div className="px-3 py-2.5 border-b border-muted-2 mb-1">
-                      <p className="font-body text-[10px] uppercase tracking-widest text-ink-3">
+                    <div className="relative px-3 py-2.5 border-b border-dashed border-kd-forest/30 mb-1">
+                      <span aria-hidden className="kd-tag" style={{ top: 8, right: 8, width: 8, height: 8 }} />
+                      <p className="font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-kd-coral-ink">
                         {t('signedInAs')}
                       </p>
                       <p className="font-body text-xs text-ink truncate mt-0.5">{user.email}</p>
@@ -149,7 +150,7 @@ export function Header() {
                       href="/dashboard"
                       role="menuitem"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center px-3 py-2 font-body text-sm text-ink hover:bg-paper-2 rounded-sm transition-colors"
+                      className="flex items-center px-3 py-2 font-body text-[11px] font-semibold uppercase tracking-[0.12em] text-kd-forest hover:bg-kd-sage/50 rounded-sm transition-colors"
                     >
                       {t('dashboard')}
                     </Link>
@@ -157,17 +158,17 @@ export function Header() {
                       href="/account"
                       role="menuitem"
                       onClick={() => setMenuOpen(false)}
-                      className="flex items-center px-3 py-2 font-body text-sm text-ink-2 hover:bg-paper-2 rounded-sm transition-colors"
+                      className="flex items-center px-3 py-2 font-body text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2 hover:bg-kd-sage/50 rounded-sm transition-colors"
                     >
                       {t('account')}
                     </Link>
-                    <div className="my-1 border-t border-muted-2" />
+                    <div className="my-1 border-t border-dashed border-kd-forest/30" />
                     <button
                       type="button"
                       role="menuitem"
                       onClick={() => void onSignOut()}
                       disabled={signingOut}
-                      className="w-full text-left flex items-center px-3 py-2 font-body text-sm text-ink-2 hover:bg-paper-2 rounded-sm transition-colors disabled:opacity-60"
+                      className="w-full text-left flex items-center px-3 py-2 font-body text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-2 hover:bg-kd-sage/50 rounded-sm transition-colors disabled:opacity-60"
                     >
                       {signingOut && <Spinner size={12} className="mr-2" />}
                       {t('signOut')}
@@ -180,14 +181,14 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => setAuthMode('signIn')}
-                  className="font-body text-sm text-ink-2 hover:text-ink transition-colors hidden sm:inline"
+                  className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors hidden sm:inline"
                 >
                   {t('signIn')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setAuthMode('signUp')}
-                  className="font-body text-sm px-4 h-9 inline-flex items-center bg-ink text-paper rounded-pill hover:bg-ink-2 transition-colors"
+                  className="kd-btn kd-btn--sm"
                 >
                   {t('signUp')}
                 </button>

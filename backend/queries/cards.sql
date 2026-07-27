@@ -10,8 +10,12 @@ WHERE slug = $1 AND status != 'deleted'
 LIMIT 1;
 
 -- name: UpdateCardData :one
-UPDATE cards SET title = $3, data = $4
-WHERE slug = $1 AND user_id = $2 AND status != 'deleted'
+-- new_slug renames the card's public link; empty keeps the current slug.
+UPDATE cards
+SET title = sqlc.arg(title),
+    data = sqlc.arg(data),
+    slug = COALESCE(NULLIF(sqlc.arg(new_slug)::text, ''), slug)
+WHERE slug = sqlc.arg(slug) AND user_id = sqlc.arg(user_id) AND status != 'deleted'
 RETURNING id, user_id, template_slug, title, slug, status, sections, data, access_type, created_at, updated_at;
 
 -- name: ListCardsByUser :many

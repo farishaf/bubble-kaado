@@ -38,7 +38,7 @@ export function FAQAccordion({ items }: { items: Item[] }) {
   }
 
   return (
-    <div className="divide-y divide-muted-2 border-t border-b border-muted-2">
+    <div className="border-t-2 border-kd-forest border-b border-b-kd-forest/20 [&>*+*]:border-t [&>*+*]:border-dashed [&>*+*]:border-kd-forest/30">
       {items.map((item, i) => (
         <div key={i} data-animate="faq-item">
           <button
@@ -47,11 +47,11 @@ export function FAQAccordion({ items }: { items: Item[] }) {
             aria-expanded={openIndex === i}
             className="w-full flex items-center justify-between gap-6 py-5 text-left"
           >
-            <span className="font-display text-lg text-ink">{item.q}</span>
+            <span className="font-display text-lg text-kd-forest">{item.q}</span>
             <span
               ref={(el) => { iconRefs.current[i] = el; }}
               aria-hidden
-              className="font-body text-xl text-ink-2 flex-shrink-0 inline-block"
+              className="font-body text-xl text-kd-coral-ink flex-shrink-0 inline-block"
             >
               +
             </span>

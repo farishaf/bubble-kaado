@@ -9,6 +9,7 @@ import { AuthModal } from '@/components/auth-modal';
 import { encodeGift } from '@/lib/gift/encode';
 import type { GiftData, GiftField, GiftTemplate } from '@/lib/gift/types';
 import { PhotoUploader } from '@/components/editor/photo-uploader';
+import { AudioUploader } from '@/components/editor/audio-uploader';
 import { EmojiButton } from '@/components/editor/emoji-button';
 import { giftPlayers } from './players';
 import { GiftQrModal } from './qr-modal';
@@ -55,6 +56,8 @@ export function GiftEditor({ template, locale }: Props) {
   // only while the local draft still matches what the server has.
   const [savedPayload, setSavedPayload] = useState<string | null>(null);
   const [fragment, setFragment] = useState('');
+  const [slugDraft, setSlugDraft] = useState(savedSlug ?? '');
+  const [renaming, setRenaming] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -158,6 +161,7 @@ export function GiftEditor({ template, locale }: Props) {
         });
         if (res.ok) {
           setSavedSlug(slug);
+          setSlugDraft(slug);
           setSavedPayload(JSON.stringify(payload));
           try { localStorage.setItem(SAVED_KEY(template.slug), slug); } catch { /* ignore */ }
           toast.show(t('saved'), { variant: 'success' });
@@ -180,6 +184,48 @@ export function GiftEditor({ template, locale }: Props) {
       return;
     }
     void doSave();
+  };
+
+  // Mirrors the server's slugRE: lowercase alphanumerics and inner hyphens, 3–62 chars.
+  const slugify = (raw: string) =>
+    raw.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-').slice(0, 62);
+
+  const slugValid = /^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$/.test(slugDraft);
+
+  const doRename = async () => {
+    if (!savedSlug || !slugValid || slugDraft === savedSlug || renaming) return;
+    const supabase = createClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) {
+      setAuthOpen(true);
+      return;
+    }
+    setRenaming(true);
+    try {
+      const payload = stripEmpty(data);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invitations/${savedSlug}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          slug: slugDraft,
+          title: (payload.recipient_name || template.name).trim(),
+          data: payload,
+        }),
+      });
+      if (res.ok) {
+        setSavedSlug(slugDraft);
+        setSavedPayload(JSON.stringify(payload));
+        try { localStorage.setItem(SAVED_KEY(template.slug), slugDraft); } catch { /* ignore */ }
+        toast.show(t('linkUpdated'), { variant: 'success' });
+        return;
+      }
+      toast.show(res.status === 409 ? t('linkTaken') : t('saveFail'), { variant: 'error' });
+    } catch {
+      toast.show(t('saveFail'), { variant: 'error' });
+    } finally {
+      setRenaming(false);
+    }
   };
 
   const hasShortLink = () =>
@@ -248,7 +294,8 @@ export function GiftEditor({ template, locale }: Props) {
               (section, i) => {
                 const fields = section.fields
                   .map((key) => template.fields.find((f) => f.key === key))
-                  .filter((f): f is GiftField => Boolean(f));
+                  .filter((f): f is GiftField => Boolean(f))
+                  .filter((f) => !f.showWhen || (data[f.showWhen.key] ?? '') === f.showWhen.equals);
                 const missing = fields.some(
                   (f) => f.required && (data[f.key] || '').trim() === ''
                 );
@@ -351,6 +398,33 @@ export function GiftEditor({ template, locale }: Props) {
                 </button>
               </div>
             </div>
+            {savedSlug && (
+              <div className="mt-3 border border-kd-forest/20 rounded-md bg-kd-cream px-4 py-3.5">
+                <p className="kd-kicker text-kd-forest">{t('linkLabel')}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span className="font-body text-xs text-ink-3 break-all">
+                    {`/${locale}/g/${template.slug}?s=`}
+                  </span>
+                  <input
+                    aria-label={t('linkLabel')}
+                    value={slugDraft}
+                    onChange={(e) => setSlugDraft(slugify(e.target.value))}
+                    className="flex-1 min-w-[10rem] font-body text-sm bg-paper border border-kd-forest/25 rounded-sm px-2.5 py-1.5 text-ink focus:border-kd-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-kd-forest transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void doRename()}
+                    disabled={!slugValid || slugDraft === savedSlug || renaming}
+                    className={toolBtn}
+                  >
+                    {renaming ? t('savingBtn') : t('linkUpdate')}
+                  </button>
+                </div>
+                <p className="mt-2 font-body text-xs text-ink-3">
+                  {slugDraft && !slugValid ? t('linkInvalid') : t('linkHelp')}
+                </p>
+              </div>
+            )}
             {!allRequiredFilled && (
               <p className="mt-3 font-body text-xs text-ink-3">{t('missingRequired')}</p>
             )}
@@ -441,6 +515,32 @@ function GiftFieldInput({
             className={`mt-1.5 ${base}`}
           />
         )}
+        {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
+      </div>
+    );
+  }
+
+  if (field.type === 'toggle') {
+    return (
+      <div>
+        <label className="inline-flex items-center gap-2 font-body text-xs text-ink-2 uppercase tracking-wider cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={value === '1'}
+            onChange={(e) => onChange(e.target.checked ? '1' : '')}
+            className="h-3.5 w-3.5 accent-kd-forest"
+          />
+          {field.label}
+        </label>
+        {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
+      </div>
+    );
+  }
+
+  if (field.type === 'audio') {
+    return (
+      <div>
+        <AudioUploader value={value} onChange={onChange} fieldLabel={field.label} />
         {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
       </div>
     );
@@ -541,7 +641,19 @@ function GiftFieldInput({
           />
         )}
       </div>
-      {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
+      <div className="mt-1.5 flex items-start gap-3">
+        {field.help && <p className="font-body text-xs text-ink-3 flex-1">{field.help}</p>}
+        {field.maxLength !== undefined && (
+          <p
+            className={`ml-auto shrink-0 font-body text-[10px] tabular-nums ${
+              value.length >= field.maxLength ? 'text-kd-coral' : 'text-ink-3'
+            }`}
+            aria-live="polite"
+          >
+            {value.length} / {field.maxLength}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

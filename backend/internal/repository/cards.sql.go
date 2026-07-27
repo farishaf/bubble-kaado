@@ -159,16 +159,20 @@ func (q *Queries) ListCardsByUser(ctx context.Context, userID uuid.UUID) ([]List
 }
 
 const updateCardData = `-- name: UpdateCardData :one
-UPDATE cards SET title = $3, data = $4
-WHERE slug = $1 AND user_id = $2 AND status != 'deleted'
+UPDATE cards
+SET title = $1,
+    data = $2,
+    slug = COALESCE(NULLIF($3::text, ''), slug)
+WHERE slug = $4 AND user_id = $5 AND status != 'deleted'
 RETURNING id, user_id, template_slug, title, slug, status, sections, data, access_type, created_at, updated_at
 `
 
 type UpdateCardDataParams struct {
-	Slug   string    `json:"slug"`
-	UserID uuid.UUID `json:"user_id"`
-	Title  string    `json:"title"`
-	Data   []byte    `json:"data"`
+	Title   string    `json:"title"`
+	Data    []byte    `json:"data"`
+	NewSlug string    `json:"new_slug"`
+	Slug    string    `json:"slug"`
+	UserID  uuid.UUID `json:"user_id"`
 }
 
 type UpdateCardDataRow struct {
@@ -185,12 +189,14 @@ type UpdateCardDataRow struct {
 	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
 }
 
+// new_slug renames the card's public link; empty keeps the current slug.
 func (q *Queries) UpdateCardData(ctx context.Context, arg UpdateCardDataParams) (UpdateCardDataRow, error) {
 	row := q.db.QueryRow(ctx, updateCardData,
-		arg.Slug,
-		arg.UserID,
 		arg.Title,
 		arg.Data,
+		arg.NewSlug,
+		arg.Slug,
+		arg.UserID,
 	)
 	var i UpdateCardDataRow
 	err := row.Scan(

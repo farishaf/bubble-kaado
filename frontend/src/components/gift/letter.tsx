@@ -213,6 +213,8 @@ type Props = {
   style?: string;
   front?: string;
   stampKind?: string;
+  /** Uploaded stamp/signature PNG. Replaces the built-in stamp when present. */
+  stampImage?: string;
   stickerSet?: string;
   coverTitle: string;
   coverHint: string;
@@ -229,6 +231,7 @@ export function GiftLetter({
   style = 'plain',
   front = 'classic',
   stampKind = 'love',
+  stampImage,
   stickerSet = 'hearts',
   coverTitle,
   coverHint,
@@ -471,10 +474,15 @@ export function GiftLetter({
                     </Fragment>
                   ))}
                 </div>
-                {(signed || stampKind !== 'none') && (
+                {(signed || stampImage || stampKind !== 'none') && (
                   <div className="gift-letter__sign">
+                    {stampImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={stampImage} alt="" className="gift-stamp gift-stamp--custom" />
+                    ) : (
+                      <Stamp kind={stampKind} />
+                    )}
                     {signed && <p className="gift-letter__text gift-letter__signed">— {signed}</p>}
-                    <Stamp kind={stampKind} />
                   </div>
                 )}
               </div>

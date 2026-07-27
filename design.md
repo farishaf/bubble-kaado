@@ -180,4 +180,57 @@ Gift-player exceptions to the base rules: playful motion (bob, wobble, confetti)
 
 **Editorial-collage redesign (2026-07-18).** Kaado surfaces (`/gift`, `/gift/:template`, `/g/:template`) moved to a brochure-inspired editorial-collage system (reference: Kanazawa City Guide; spec in the user-supplied `brochure-design-system.md`). New tokens in `globals.css` `@theme`: `--color-kd-paper/-2` (warm cream), `--color-kd-sage`, `--color-kd-forest/-2` (deep contrast panels), `--color-kd-coral` (single accent pop, ≤15% area), `--color-kd-cream`. Signature motifs: `.kd-kicker` (slash-wrapped label), `.kd-dots` (dotted grid), `.kd-stamp-edge` (perforated postage-stamp mask). Editor chrome now uses this system (supersedes "editor chrome follows the base system"); color-blocked panels sit edge-to-edge, buttons are squared (`--radius-sm`) with uppercase micro-labels. Envelope front drops the receiver name for a postage-stamp sticker (2 designs: `bloom`, `crane` — `stamp_sticker` field) plus postmark + empty address rules. Letter spread: desktop = photos+vinyl left sheet / message right; mobile = vinyl strip top, polaroids floated through the message. Parallax on envelope open and letter (GSAP layers via `data-para`, pointer-fine only). Emoji allowed **in user gift content only** (picker: `emoji-picker-element`); product copy still bans emoji. Photo crop via `react-easy-crop`. YouTube supports `yt_start`/`yt_end`, CC forced on, and `song_mode=audio` (hidden IFrame-API player, vinyl as control). `no_mode` selects the dodge vs classic no-button.
 
+---
+
+## Product-wide editorial-collage system (2026-07-27) — SUPERSEDES the base voice for all chrome
+
+The editorial-collage system introduced for Kaado on 2026-07-18 is now **the system for every product surface**, not just `/gift`. The base "quiet editorial minimal" voice (pill buttons, `bg-paper` flats, hairline `--color-muted-2` dividers) is retired from chrome.
+
+**Unchanged:** Fraunces / Plus Jakarta Sans / JetBrains Mono, the 4-pt spacing scale, the type scale, the section order of `/`, the voice rules, the anti-pattern list, and every route.
+
+### Token roles for chrome
+
+| Role | Token | Notes |
+|---|---|---|
+| Page ground | `--color-kd-paper` | replaces `--color-paper` on chrome |
+| Sheet / card | `--color-kd-cream` + `.kd-sheet` | texture-under-veil, not a flat fill |
+| Secondary block | `--color-kd-sage` | alternating grid cells, quiet panels |
+| Contrast slab | `--color-kd-forest` / `-2` | CTA bands, footer, buttons, active states |
+| On-slab text | `--color-kd-cream` | the only legal text colour on forest |
+| Accent mark | `--color-kd-coral` | **marks only** — corner tags, rules, fills. ≤15% of any viewport |
+| Accent text | `--color-kd-coral-ink` | the text-safe coral (~4.9:1 on cream). Bright coral is ~2.9:1 and may never carry text |
+| Body copy | `--color-ink` / `-2` / `-3` | warm neutrals stay legal on kd-paper |
+| Rules | `--kd-line` | 20% forest, replaces `--color-muted-2` |
+
+### Chrome primitives (in `globals.css`, site-scope)
+
+`.kd-sheet` · `.kd-rule` / `--hair` / `--dashed` · `.kd-btn` / `--ghost` / `--sm` / `--lg` · `.kd-tag` · `.kd-field`, alongside the existing `.kd-kicker` · `.kd-dots` · `.kd-stamp-edge`. Chrome composes these; it does not re-declare their values in Tailwind chains.
+
+### Component voice
+
+- **Buttons** — squared (`--radius-sm`), uppercase 11px / 0.12em, forest fill or ghost outline. `rounded-pill` is retired from chrome.
+- **Labels** — `.kd-kicker` (slash-wrapped) in `--color-kd-coral-ink`, stacked *above* its heading, never tag-left/heading-right (gate 54).
+- **Ordinals** — `01 / 02 / 03`, `tabular-nums`, coral-ink. Roman numerals retired.
+- **Headings** — `font-display` in `--color-kd-forest`.
+- **Grids** — edge-to-edge cells divided by `--kd-line`, alternating cream / sage fills, `.kd-tag` in the corner. Reference: `src/app/[locale]/gift/page.tsx`.
+- **Cards** — squared, `.kd-sheet`, 1px `--kd-line`. No `rounded-lg`, no soft shadow-as-separation.
+
+### Motion (3 primitives, replaces `soft-fade` for chrome)
+
+| Name | What | Spec |
+|---|---|---|
+| `paper-set` | panels / cards enter | `autoAlpha 0→1`, `y 18→0`, `rotate ±0.6deg→0`, stagger 0.07, 420ms `power2.out`, via `ScrollTrigger.batch` |
+| `rule-draw` | forest + dashed rules | `scaleX 0→1`, origin left, 500ms `power2.inOut` |
+| `tag-press` | coral tags, kickers, ordinals | `scale 0.7→1` + `autoAlpha`, 220ms, −0.15 offset from its panel |
+
+`lift-hover` and `press-press` survive for interactive elements. No scrub, no pinning — collage is static composition. All motion keeps its `prefers-reduced-motion: reduce` branch.
+
+### Variants (what does NOT adopt this)
+
+- **Gift player** (`/g/:template`) — the four `data-gift-theme` pastels are *user content*, chosen by the sender. Player-only, unchanged.
+- **Bloom** (`/bloom`, `/bloom/:slug`) — keeps its own Letter macrostructure and intimate hand-drawn voice.
+- **Invite renderer** (`/i/:slug`) — user content, not chrome. Template artwork unchanged.
+
+---
+
 **Envelope + 3-face letter (added 2026-07-09).** The yes-no player gains an envelope stage (GSAP squash-bounce idle; tap 1 opens the flap, tap 2 pulls the letter) and a 3-face letter (front cover → main with typewriter body, stamp, stickers → back with spinning vinyl + Spotify-style lyric walk; close folds it back into the envelope, re-openable). Envelope colour tokens (`--env-base` / `--env-deep`, selected via `data-env` in `globals.css`): `cream` `oklch(0.93 0.02 85)`/`oklch(0.87 0.03 82)` · `rose` `oklch(0.90 0.045 15)`/`oklch(0.84 0.06 15)` · `kraft` `oklch(0.85 0.045 75)`/`oklch(0.78 0.055 72)` · `sky` `oklch(0.90 0.04 230)`/`oklch(0.83 0.05 235)`. Letter back panel: `oklch(0.25 0.015 60)` with light text `oklch(0.92–0.93 0.012–0.015 80)`. Stamp ink: `--color-danger`. GSAP (`gsap` + `@gsap/react`) is the animation layer for these gift surfaces.

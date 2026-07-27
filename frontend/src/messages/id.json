@@ -178,7 +178,13 @@
     "cropPhoto": "Potong foto",
     "cropTitle": "Potong foto",
     "cropApply": "Terapkan",
-    "cropCancel": "Batal"
+    "cropCancel": "Batal",
+    "audioAdd": "Unggah MP3",
+    "audioReady": "Berkas lagu tersimpan",
+    "audioRemove": "Hapus lagunya",
+    "audioNotAudio": "Berkasnya harus MP3 atau M4A.",
+    "audioTooBig": "Berkasnya lebih dari 10 MB. Perkecil dulu.",
+    "audioTooLong": "Lagunya lebih dari 5 menit. Potong dulu."
   },
   "dashboard": {
     "heading": "Karya saya",
@@ -312,7 +318,13 @@
       "savingBtn": "Menyimpan…",
       "saved": "Tersimpan di profilmu.",
       "saveFail": "Gagal menyimpan. Coba lagi.",
-      "emoji": "Sisipkan emoji"
+      "emoji": "Sisipkan emoji",
+      "linkLabel": "Tautan hadiahnya",
+      "linkUpdate": "Perbarui tautan",
+      "linkUpdated": "Tautannya diperbarui.",
+      "linkTaken": "Tautan itu sudah dipakai. Coba yang lain.",
+      "linkInvalid": "3–62 karakter, huruf kecil, angka, dan tanda hubung.",
+      "linkHelp": "Ganti bagian terakhirnya jadi sesuatu yang gampang diingat. Tautan lamanya berhenti berlaku."
     },
     "player": {
       "forYou": "Untuk {name}",
@@ -331,7 +343,7 @@
       "soundOn": "Nyalakan suara",
       "soundOff": "Matikan suara",
       "envelopeHintClosed": "Ketuk amplopnya",
-      "envelopeHintAjar": "Ketuk lagi untuk mengambil surat",
+      "envelopeHintAjar": "Geser suratnya ke atas",
       "coverHint": "Ketuk untuk membuka surat",
       "flipToBack": "Balik suratnya",
       "flipToFront": "Kembali ke surat",
