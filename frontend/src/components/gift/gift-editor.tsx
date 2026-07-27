@@ -14,7 +14,7 @@ import { EmojiButton } from '@/components/editor/emoji-button';
 import { giftPlayers } from './players';
 import { GiftQrModal } from './qr-modal';
 
-type Props = { template: GiftTemplate; locale: string };
+type Props = { template: GiftTemplate; locale: string; editSlug?: string | null };
 
 const DRAFT_KEY = (slug: string) => `kaado:draft:${slug}`;
 const SAVED_KEY = (slug: string) => `kaado:saved:${slug}`;
@@ -30,11 +30,13 @@ function stripEmpty(data: GiftData): GiftData {
   return out;
 }
 
-export function GiftEditor({ template, locale }: Props) {
+export function GiftEditor({ template, locale, editSlug = null }: Props) {
   const t = useTranslations('gift.editor');
   const toast = useToast();
   const [data, setData] = useState<GiftData>(() => {
-    if (typeof window === 'undefined') return { ...template.defaults };
+    // Editing a saved card: ignore the local draft, the server copy wins and
+    // arrives in the effect below. Otherwise pick the draft back up.
+    if (typeof window === 'undefined' || editSlug) return { ...template.defaults };
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY(template.slug));
       if (raw) return { ...template.defaults, ...(JSON.parse(raw) as GiftData) };
@@ -49,15 +51,49 @@ export function GiftEditor({ template, locale }: Props) {
   const [saving, setSaving] = useState(false);
   const qrAfterAuth = useRef(false);
   const [savedSlug, setSavedSlug] = useState<string | null>(() => {
+    if (editSlug) return editSlug;
     if (typeof window === 'undefined') return null;
     return window.localStorage.getItem(SAVED_KEY(template.slug));
   });
+  const [loadingCard, setLoadingCard] = useState(Boolean(editSlug));
   // JSON snapshot of the payload at last save; lets us use the short ?s= link
   // only while the local draft still matches what the server has.
   const [savedPayload, setSavedPayload] = useState<string | null>(null);
   const [fragment, setFragment] = useState('');
   const [slugDraft, setSlugDraft] = useState(savedSlug ?? '');
   const [renaming, setRenaming] = useState(false);
+
+  // Opened from the dashboard with ?edit=<slug>: pull the saved card so the
+  // form starts from what's actually published. The public GET is enough —
+  // it's the same content the recipient sees — and seeding savedPayload here
+  // means Save takes the PUT branch and updates in place instead of minting a
+  // second card.
+  useEffect(() => {
+    if (!editSlug) return;
+    let alive = true;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/i/${editSlug}`, { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+      .then((card: { data?: GiftData }) => {
+        if (!alive) return;
+        const loaded = { ...template.defaults, ...(card.data ?? {}) };
+        setData(loaded);
+        setSlugDraft(editSlug);
+        setSavedPayload(JSON.stringify(stripEmpty(loaded)));
+        try { localStorage.setItem(SAVED_KEY(template.slug), editSlug); } catch { /* ignore */ }
+      })
+      .catch(() => {
+        if (alive) toast.show(t('loadFail'), { variant: 'error' });
+      })
+      .finally(() => {
+        if (alive) setLoadingCard(false);
+      });
+    return () => {
+      alive = false;
+    };
+    // toast/t are stable for the life of the editor; re-running on them would
+    // refetch and stomp edits in progress.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editSlug, template.slug, template.defaults]);
 
   useEffect(() => {
     let alive = true;
@@ -70,13 +106,16 @@ export function GiftEditor({ template, locale }: Props) {
   }, [data]);
 
   useEffect(() => {
+    // Editing a saved card writes straight to the server, so it must not
+    // overwrite the local draft of a *different*, unsaved card of this template.
+    if (editSlug) return;
     const id = setTimeout(() => {
       try {
         localStorage.setItem(DRAFT_KEY(template.slug), JSON.stringify(data));
       } catch { /* ignore */ }
     }, 300);
     return () => clearTimeout(id);
-  }, [data, template.slug]);
+  }, [data, template.slug, editSlug]);
 
   const effective = useMemo(
     () => ({ ...template.defaults, ...stripEmpty(data) }),
@@ -110,6 +149,9 @@ export function GiftEditor({ template, locale }: Props) {
   };
 
   const doSave = async (): Promise<boolean> => {
+    // The saved card hasn't arrived yet — saving now would PUT the blank
+    // defaults over it.
+    if (loadingCard) return false;
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;

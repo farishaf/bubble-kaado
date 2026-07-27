@@ -22,17 +22,23 @@
   --color-warning:      oklch(0.78 0.110  80);
   --color-danger:       oklch(0.62 0.180  25);
 
-  /* Kaado editorial-collage palette (brochure reference: cream / sage / forest / coral) */
-  --color-kd-paper:    oklch(0.945 0.018 85);
-  --color-kd-paper-2:  oklch(0.905 0.022 85);
-  --color-kd-sage:     oklch(0.88  0.030 150);
-  --color-kd-forest:   oklch(0.33  0.055 165);
-  --color-kd-forest-2: oklch(0.27  0.050 165);
-  --color-kd-coral:    oklch(0.65  0.180 35);
-  /* the bright coral is a *mark* colour — it reads ~2.9:1 on cream, so it must
-     never carry text. This darker sibling is the text-safe one (~4.9:1). */
-  --color-kd-coral-ink: oklch(0.52 0.160 32);
-  --color-kd-cream:    oklch(0.96  0.015 85);
+  /* Kaado editorial-collage palette — converted from the Kanazawa motif spec.
+     Paper white is the lightest surface and cream sits under it as the page
+     ground; that order matters, the two used to be inverted. */
+  --color-kd-paper:    oklch(0.976 0.007 89);  /* #F9F7F2 paper white — card surfaces */
+  --color-kd-paper-2:  oklch(0.905 0.014 86);  /* between cream and sage — recessed panels */
+  --color-kd-sage:     oklch(0.862 0.012 154); /* #CCD4CE — grid lines, tints, pattern fills */
+  --color-kd-forest:   oklch(0.363 0.060 172); /* #14483A Kaga green — authority surfaces */
+  --color-kd-forest-2: oklch(0.300 0.055 172);
+  --color-kd-coral:    oklch(0.679 0.201 33);  /* #FB5B3B Shu vermilion — accent only */
+  /* the bright vermilion is a *mark* colour — it reads ~2.9:1 on cream, so it
+     must never carry text. This darker sibling is the text-safe one (~4.9:1). */
+  --color-kd-coral-ink: oklch(0.520 0.165 33);
+  --color-kd-cream:    oklch(0.935 0.018 86);  /* #EFE9DC washi cream — page ground */
+  /* Sakura pink is the smallest quantity and the loudest note (~2% of a
+     surface); gold is rarer still, a garnish for craft/heritage references. */
+  --color-kd-pink:     oklch(0.860 0.109 331); /* #FBB7F2 */
+  --color-kd-gold:     oklch(0.801 0.109 81);  /* #E2B768 */
 
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-body:    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
@@ -318,6 +324,21 @@
 .kd-dots {
   background-image: radial-gradient(oklch(0.22 0.015 60 / 0.14) 1px, transparent 1.5px);
   background-size: 15px 15px;
+}
+
+/* Shima (stripe) fill — the motif spec's substitute for a tint: wherever the
+   instinct is to drop a colour's opacity, stripe it at full opacity instead.
+   4px bar / 6px gap is the 1:1.5 ratio the spec calls for. Only 0° and 90°. */
+.kd-shima {
+  background-image: repeating-linear-gradient(
+    90deg, var(--kd-shima, var(--color-kd-sage)) 0 4px, transparent 4px 10px
+  );
+}
+
+.kd-shima--h {
+  background-image: repeating-linear-gradient(
+    0deg, var(--kd-shima, var(--color-kd-sage)) 0 4px, transparent 4px 10px
+  );
 }
 
 /* Perforated postage-stamp edge: solid interior + punched-hole ring in the padding */
@@ -618,7 +639,9 @@
   color: var(--color-kd-cream);
 }
 
-.gift-panel__band svg { opacity: 0.55; }
+/* Direct child only: this dims the plus mark, not the blossoms nested inside
+   the scatter — those are the loud note and stay at full strength. */
+.gift-panel__band > svg { opacity: 0.55; }
 
 .gift-panel__body {
   position: relative;
@@ -650,12 +673,9 @@
   color: var(--gift-ink-2);
 }
 
-.gift-panel__foot strong {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
+/* The foot carries a shima rule now instead of a wordmark, so it only needs
+   the dashed tear line above it and enough height for the stripes. */
+.gift-panel__foot { --kd-shima: var(--color-kd-sage); }
 
 /* the ask stage runs chromeless — no band, no foot — so the body carries the
    top inset the band used to provide */
@@ -1691,12 +1711,15 @@
   position: absolute;
   z-index: 2;
   color: var(--gift-accent);
+  /* The four zero-blur offsets are the die-cut sticker edge, not lighting.
+     Depth is a single flat offset silhouette at 8% — no blur, per the motif
+     spec; a blurred shadow was the one bit of lighting left in here. */
   filter:
     drop-shadow(1px 0 0 var(--gift-card))
     drop-shadow(-1px 0 0 var(--gift-card))
     drop-shadow(0 1px 0 var(--gift-card))
     drop-shadow(0 -1px 0 var(--gift-card))
-    drop-shadow(0 2px 2px oklch(0.22 0.015 60 / 0.18));
+    drop-shadow(1.5px 2px 0 oklch(0.22 0.015 60 / 0.08));
   pointer-events: none;
 }
 

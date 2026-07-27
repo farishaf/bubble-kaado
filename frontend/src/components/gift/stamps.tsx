@@ -2,6 +2,10 @@
 
 export type StampStickerKind = 'bloom' | 'crane';
 
+/* Shima band across the stamp foot: 3-wide bars on a 7.5 pitch, the spec's
+   1:1.5 bar-to-gap ratio. Vertical only — no diagonals, no varying widths. */
+const STRIPE_X = [10, 17.5, 25, 32.5, 40];
+
 export function StampSticker({ kind, width = 54 }: { kind: string; width?: number }) {
   const k: StampStickerKind = kind === 'crane' ? 'crane' : 'bloom';
   const height = Math.round(width * (68 / 54));
@@ -20,12 +24,12 @@ export function StampSticker({ kind, width = 54 }: { kind: string; width?: numbe
           </g>
           <circle cx="27" cy="31" r="5" fill="var(--color-kd-cream)" />
           <circle cx="27" cy="31" r="2.4" fill="var(--color-kd-forest)" />
-          <text x="10" y="60" fontSize="7" fontWeight="700" letterSpacing="1.5" fill="var(--color-kd-forest)" fontFamily="var(--font-body)">
-            KAADO
-          </text>
-          <text x="38" y="60" fontSize="8" fontWeight="800" fill="var(--color-kd-coral)" fontFamily="var(--font-body)">
-            26
-          </text>
+          {/* shima band where the denomination used to be set */}
+          <g fill="var(--color-kd-forest)">
+            {STRIPE_X.map((x) => (
+              <rect key={x} x={x} y="53" width="3" height="7" />
+            ))}
+          </g>
         </svg>
       ) : (
         <svg width={width} height={height} viewBox="0 0 54 68">
@@ -39,12 +43,13 @@ export function StampSticker({ kind, width = 54 }: { kind: string; width?: numbe
             <path d="M27 22 L24 13 L30 17 Z" />
           </g>
           <circle cx="24.5" cy="15.5" r="0.9" fill="var(--color-kd-sage)" />
-          <text x="10" y="60" fontSize="7" fontWeight="700" letterSpacing="1.5" fill="var(--color-kd-forest)" fontFamily="var(--font-body)">
-            KAADO
-          </text>
-          <text x="38" y="60" fontSize="8" fontWeight="800" fill="var(--color-kd-coral)" fontFamily="var(--font-body)">
-            26
-          </text>
+          {/* the crane stamp's single vermilion hit — the bloom face keeps its
+              in the petals, so this one lands in the band instead */}
+          <g fill="var(--color-kd-coral)">
+            {STRIPE_X.map((x) => (
+              <rect key={x} x={x} y="53" width="3" height="7" />
+            ))}
+          </g>
         </svg>
       )}
     </span>

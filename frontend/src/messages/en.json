@@ -191,6 +191,7 @@
     "lede": "Everything you've made, in one place.",
     "count": "{n} saved",
     "newCta": "Create new",
+    "edit": "Edit",
     "view": "View",
     "copy": "Copy",
     "copied": "Copied",
@@ -318,6 +319,7 @@
       "savingBtn": "Saving…",
       "saved": "Saved to your profile.",
       "saveFail": "Couldn't save. Try again.",
+      "loadFail": "Couldn't load this gift. Try again.",
       "emoji": "Insert emoji",
       "linkLabel": "Gift link",
       "linkUpdate": "Update link",
@@ -349,10 +351,7 @@
       "flipToFront": "Back to the letter",
       "closeLetter": "Close the letter",
       "audioPlay": "Play",
-      "audioPause": "Pause",
-      "introKicker": "Special delivery",
-      "askKicker": "The question",
-      "yayKicker": "A little celebration"
+      "audioPause": "Pause"
     }
   }
 }

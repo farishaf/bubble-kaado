@@ -8,6 +8,7 @@ import { burstConfetti } from './confetti';
 import { GiftEnvelope } from './envelope';
 import { GiftLetter, LetterCover, Vinyl } from './letter';
 import { Mascot } from './mascot';
+import { BlossomScatter } from './motifs';
 
 type Stage = 'intro' | 'ask' | 'yay' | 'envelope' | 'letter';
 
@@ -290,7 +291,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
         <div className="gift-stage">
           <div className="gift-panel gift-enter">
             <div className="gift-panel__band">
-              <span className="kd-kicker">{t('introKicker')}</span>
+              <BlossomScatter />
               <PlusMark />
             </div>
             <div className="gift-panel__body">
@@ -303,8 +304,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               <p className="gift-env__hint">{t('open')}</p>
             </div>
             <div className="gift-panel__foot">
-              <strong>Kaado</strong>
-              <span>26</span>
+              <span className="kd-shima h-1.5 flex-1" aria-hidden="true" />
             </div>
           </div>
         </div>
@@ -357,7 +357,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
         <div className="gift-stage">
           <div className="gift-panel gift-enter">
             <div className="gift-panel__band">
-              <span className="kd-kicker">{t('yayKicker')}</span>
+              <BlossomScatter />
               <PlusMark />
             </div>
             <div className="gift-panel__body">
@@ -377,8 +377,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               </button>
             </div>
             <div className="gift-panel__foot">
-              <strong>Kaado</strong>
-              <span>26</span>
+              <span className="kd-shima h-1.5 flex-1" aria-hidden="true" />
             </div>
           </div>
         </div>
@@ -417,7 +416,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               front={data.letter_front || 'classic'}
               stampKind={data.stamp || 'love'}
               stampImage={(data.stamp_custom || '').split('\n')[0]?.trim() || undefined}
-              stickerSet={data.sticker_set || 'hearts'}
+              stickerSet={data.sticker_set || 'blooms'}
               coverTitle={recipient ? t('forYou', { name: recipient }) : t('forYouAnon')}
               coverHint={t('coverHint')}
               greeting={recipient ? t('letterGreeting', { name: recipient }) : t('letterGreetingAnon')}

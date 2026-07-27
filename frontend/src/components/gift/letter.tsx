@@ -4,6 +4,7 @@ import { Fragment, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { giftSound } from '@/lib/gift/sound';
+import { Blossom, Crane, RegMark } from './motifs';
 
 gsap.registerPlugin(useGSAP);
 
@@ -27,21 +28,6 @@ function HeartShape({ className, size = 16 }: { className?: string; size?: numbe
         d="M8 14 C4 10.8 1 8.4 1 5.4 C1 3.2 2.8 1.6 4.8 1.6 C6.1 1.6 7.3 2.3 8 3.4 C8.7 2.3 9.9 1.6 11.2 1.6 C13.2 1.6 15 3.2 15 5.4 C15 8.4 12 10.8 8 14 Z"
         fill="currentColor"
       />
-    </svg>
-  );
-}
-
-function Bloom({ className, size = 18 }: { className?: string; size?: number }) {
-  return (
-    <svg className={className} width={size} height={size} viewBox="0 0 20 20" aria-hidden="true">
-      <g fill="currentColor">
-        <circle cx="10" cy="4.5" r="3.4" />
-        <circle cx="15.5" cy="8.5" r="3.4" />
-        <circle cx="13.4" cy="14.8" r="3.4" />
-        <circle cx="6.6" cy="14.8" r="3.4" />
-        <circle cx="4.5" cy="8.5" r="3.4" />
-      </g>
-      <circle cx="10" cy="10" r="2.6" fill="var(--gift-card)" />
     </svg>
   );
 }
@@ -152,14 +138,28 @@ function Stamp({ kind }: { kind: string }) {
 
 /* ── Stickers ────────────────────────────────────────────────────── */
 
+/* Sanctioned sticker marks. Hearts and sparkles predate the motif vocabulary
+   and aren't part of it, so cards saved with those fall through to the nearest
+   legitimate mark rather than rendering nothing. */
+const STICKER_ALIAS: Record<string, string> = { hearts: 'blooms', stars: 'cranes' };
+
+const STICKER_SHAPE = {
+  blooms: (size: number) => (
+    <Blossom size={size} color="currentColor" centerColor="var(--gift-card)" />
+  ),
+  cranes: (size: number) => <Crane size={size} />,
+  marks: (size: number) => <RegMark size={size} />,
+} as const;
+
 function Stickers({ set }: { set: string }) {
-  if (set !== 'hearts' && set !== 'stars' && set !== 'blooms') return null;
-  const Shape = set === 'hearts' ? HeartShape : set === 'stars' ? Sparkle : Bloom;
+  const kind = STICKER_ALIAS[set] ?? set;
+  if (!(kind in STICKER_SHAPE)) return null;
+  const shape = STICKER_SHAPE[kind as keyof typeof STICKER_SHAPE];
   return (
     <>
-      <span className="gift-sticker gift-sticker--a" data-para="10"><Shape size={22} /></span>
-      <span className="gift-sticker gift-sticker--b" data-para="12"><Shape size={16} /></span>
-      <span className="gift-sticker gift-sticker--c" data-para="8"><Shape size={19} /></span>
+      <span className="gift-sticker gift-sticker--a" data-para="10">{shape(30)}</span>
+      <span className="gift-sticker gift-sticker--b" data-para="12">{shape(22)}</span>
+      <span className="gift-sticker gift-sticker--c" data-para="8">{shape(26)}</span>
     </>
   );
 }
