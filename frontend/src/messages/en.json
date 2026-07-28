@@ -14,7 +14,9 @@
     "account": "My account",
     "dashboard": "My invitations",
     "bloom": "Bloom",
-    "gift": "Gift"
+    "gift": "Gift",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "signIn": {

@@ -14,7 +14,9 @@
     "account": "Akun saya",
     "dashboard": "Undangan saya",
     "bloom": "Bloom",
-    "gift": "Kaado"
+    "gift": "Kaado",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu"
   },
   "auth": {
     "signIn": {

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
-import { Link } from '@/i18n/routing';
+import { Link, usePathname } from '@/i18n/routing';
 import { useAuth } from '@/lib/auth/context';
 import { useToast } from '@/lib/ui/toast';
 import { Spinner } from '@/lib/ui/spinner';
@@ -20,8 +20,23 @@ export function Header() {
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp' | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const dropdownPanelRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    if (prevPathname !== null) setMobileOpen(false);
+  }
+
+  const navItems = [
+    { href: '/design' as const, label: t('design') },
+    { href: '/bloom' as const, label: t('bloom') },
+    { href: '/gift' as const, label: t('gift') },
+  ];
 
   useEffect(() => {
     const onOpen = (e: Event) => {
@@ -31,6 +46,41 @@ export function Header() {
     window.addEventListener('lumio:open-auth', onOpen);
     return () => window.removeEventListener('lumio:open-auth', onOpen);
   }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onPointer = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setMobileOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [mobileOpen]);
+
+  useGSAP(() => {
+    if (!mobileOpen || !mobilePanelRef.current) return;
+    const mm = gsap.matchMedia();
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+      gsap.fromTo(
+        mobilePanelRef.current,
+        { autoAlpha: 0, y: 18 },
+        { autoAlpha: 1, y: 0, duration: 0.42, ease: 'power2.out' }
+      );
+      gsap.fromTo(
+        mobilePanelRef.current!.querySelectorAll('[data-mobile-link]'),
+        { autoAlpha: 0, y: 8 },
+        { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out', stagger: 0.05, delay: 0.06 }
+      );
+    });
+  }, { scope: mobilePanelRef, dependencies: [mobileOpen] });
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -86,30 +136,21 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b-2 border-kd-forest bg-kd-paper/90 backdrop-blur-sm">
+      <header ref={headerRef} className="sticky top-0 z-50 border-b-2 border-kd-forest bg-kd-paper/90 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between gap-6">
           <Link href="/" className="font-display text-xl text-kd-forest tracking-tight">
             {t('brand')}
           </Link>
           <nav className="hidden md:flex items-center gap-8">
-            <Link
-              href="/design"
-              className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
-            >
-              {t('design')}
-            </Link>
-            <Link
-              href="/bloom"
-              className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
-            >
-              {t('bloom')}
-            </Link>
-            <Link
-              href="/gift"
-              className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
-            >
-              {t('gift')}
-            </Link>
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
           <div className="flex items-center gap-3 md:gap-4">
             <Link
@@ -194,8 +235,63 @@ export function Header() {
                 </button>
               </>
             )}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileOpen((v) => !v);
+                setMenuOpen(false);
+              }}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-nav-panel"
+              aria-label={mobileOpen ? t('closeMenu') : t('openMenu')}
+              className="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-sm text-kd-forest hover:bg-kd-sage/40 transition-colors"
+            >
+              <span className="relative block w-4 h-3" aria-hidden="true">
+                <span
+                  className="absolute left-0 top-0 w-4 h-[1.5px] bg-kd-forest transition-transform duration-200 ease-out"
+                  style={{ transform: mobileOpen ? 'translateY(5.5px) rotate(45deg)' : 'none' }}
+                />
+                <span
+                  className="absolute left-0 bottom-0 w-4 h-[1.5px] bg-kd-forest transition-transform duration-200 ease-out"
+                  style={{ transform: mobileOpen ? 'translateY(-5.5px) rotate(-45deg)' : 'none' }}
+                />
+              </span>
+            </button>
           </div>
         </div>
+        {mobileOpen && (
+          <div
+            id="mobile-nav-panel"
+            ref={mobilePanelRef}
+            className="md:hidden absolute inset-x-0 top-full kd-sheet border-b-2 border-kd-forest shadow-3 z-40"
+          >
+            <nav className="flex flex-col px-6 py-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  data-mobile-link
+                  className="py-3.5 border-b border-dashed border-kd-forest/30 last:border-b-0 font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+              {!user && (
+                <button
+                  type="button"
+                  data-mobile-link
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setAuthMode('signIn');
+                  }}
+                  className="py-3.5 border-t border-dashed border-kd-forest/30 text-left font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-2 hover:text-kd-forest transition-colors"
+                >
+                  {t('signIn')}
+                </button>
+              )}
+            </nav>
+          </div>
+        )}
       </header>
       {authMode && (
         <AuthModal
