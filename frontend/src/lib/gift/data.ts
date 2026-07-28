@@ -24,7 +24,7 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       {
         key: 'question',
         label: 'Pertanyaanmu',
-        placeholder: 'Aku kangen. Mau video call bareng malam ini?',
+        placeholder: 'Tebak ini isinya apa',
         type: 'text',
         required: true,
         maxLength: 120,
@@ -209,7 +209,7 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
     defaults: {
       recipient_name: '',
       sender_name: '',
-      question: 'Aku kangen. Mau nemenin aku video call malam ini?',
+      question: 'Tebak ini isinya apa',
       photos: '',
       yes_label: 'Mau',
       no_label: 'Nggak',
