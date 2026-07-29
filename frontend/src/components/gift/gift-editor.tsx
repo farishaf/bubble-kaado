@@ -9,6 +9,7 @@ import { AuthModal } from '@/components/auth-modal';
 import { encodeGift } from '@/lib/gift/encode';
 import type { GiftData, GiftField, GiftTemplate } from '@/lib/gift/types';
 import { PhotoUploader } from '@/components/editor/photo-uploader';
+import { AudioUploader } from '@/components/editor/audio-uploader';
 import { giftPlayers } from './players';
 import { GiftQrModal } from './qr-modal';
 
@@ -19,6 +20,11 @@ const SAVED_KEY = (slug: string) => `kaado:saved:${slug}`;
 
 const randomSlug = (prefix: string) =>
   `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+
+function countWords(s: string): number {
+  const t = s.trim();
+  return t ? t.split(/\s+/).length : 0;
+}
 
 function stripEmpty(data: GiftData): GiftData {
   const out: GiftData = {};
@@ -406,6 +412,15 @@ function GiftFieldInput({
     );
   }
 
+  if (field.type === 'audio') {
+    return (
+      <div>
+        <AudioUploader value={value} onChange={onChange} fieldLabel={field.label} />
+        {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
+      </div>
+    );
+  }
+
   if (field.type === 'photo-gallery') {
     return (
       <div>
@@ -467,7 +482,11 @@ function GiftFieldInput({
           <textarea
             id={id}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              if (field.maxWords && countWords(next) > field.maxWords && next.length > value.length) return;
+              onChange(next);
+            }}
             placeholder={field.placeholder}
             maxLength={field.maxLength}
             rows={field.key === 'letter' ? 6 : 4}
@@ -493,6 +512,11 @@ function GiftFieldInput({
           />
         )}
       </div>
+      {field.maxWords && (
+        <p className="mt-1.5 font-body text-[10px] text-ink-3 tabular-nums">
+          {countWords(value)}/{field.maxWords} kata
+        </p>
+      )}
       {field.help && <p className="mt-1.5 font-body text-xs text-ink-3">{field.help}</p>}
     </div>
   );

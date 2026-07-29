@@ -174,7 +174,11 @@
     "movePhotoRight": "Mundurkan urutan foto",
     "uploadNotImage": "Hanya file gambar yang diperbolehkan.",
     "uploadTooBig": "Ukuran foto maksimal 8 MB.",
-    "uploadFailed": "Upload gagal. Coba lagi."
+    "uploadFailed": "Upload gagal. Coba lagi.",
+    "addAudio": "Unggah MP3",
+    "removeAudio": "Hapus lagu",
+    "uploadNotAudio": "Hanya berkas audio (MP3, M4A, WAV) yang diperbolehkan.",
+    "uploadAudioTooBig": "Ukuran lagu maksimal 12 MB."
   },
   "dashboard": {
     "heading": "Karya saya",
@@ -308,6 +312,18 @@
       "savingBtn": "Menyimpan…",
       "saved": "Tersimpan di profilmu.",
       "saveFail": "Gagal menyimpan. Coba lagi."
+    },
+    "puzzlePlayer": {
+      "wordmark": "Dekadoe",
+      "loading": "Kadomu lagi jalan",
+      "boxHint": "Ketuk gambar di tagnya",
+      "puzzleTitle": "Susun dulu, baru kebuka",
+      "puzzleHint": "Seret tiap keping ke kotaknya",
+      "puzzleProgress": "{n} dari {total} keping terpasang",
+      "revealTitle": "KADONYA KEBUKA",
+      "openLetter": "Baca suratnya",
+      "restart": "Ulang dari awal",
+      "pieceLabel": "Keping {n} — ketuk untuk memasang"
     },
     "player": {
       "forYou": "Untuk {name}",

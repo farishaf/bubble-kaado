@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { GiftPlayerProps } from '@/lib/gift/types';
 import { giftSound } from '@/lib/gift/sound';
@@ -8,6 +8,7 @@ import { burstConfetti } from './confetti';
 import { GiftEnvelope } from './envelope';
 import { GiftLetter, LetterCover } from './letter';
 import { Mascot } from './mascot';
+import { GiftSongPlayer, youtubeId } from './song';
 
 type Stage = 'intro' | 'ask' | 'yay' | 'envelope' | 'letter';
 
@@ -23,79 +24,6 @@ function daysUntil(iso: string): number | null {
   return Math.round((target.getTime() - today.getTime()) / 86_400_000);
 }
 
-function youtubeId(url: string): string | null {
-  const m = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
-
-function spotifyUri(url: string): string | null {
-  const m = url.match(/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/i);
-  return m ? `spotify:${m[1].toLowerCase()}:${m[2]}` : null;
-}
-
-type SpotifyController = {
-  destroy: () => void;
-  play: () => void;
-  addListener: (event: string, cb: () => void) => void;
-};
-
-type SpotifyIframeApi = {
-  createController: (
-    el: HTMLElement,
-    options: { uri: string; height?: number | string; width?: number | string },
-    cb: (controller: SpotifyController) => void
-  ) => void;
-};
-
-let spotifyApiPromise: Promise<SpotifyIframeApi> | null = null;
-
-function loadSpotifyApi(): Promise<SpotifyIframeApi> {
-  if (!spotifyApiPromise) {
-    spotifyApiPromise = new Promise((resolve) => {
-      (window as Window & { onSpotifyIframeApiReady?: (api: SpotifyIframeApi) => void }).onSpotifyIframeApiReady =
-        resolve;
-      const s = document.createElement('script');
-      s.src = 'https://open.spotify.com/embed/iframe-api/v1';
-      s.async = true;
-      document.body.appendChild(s);
-    });
-  }
-  return spotifyApiPromise;
-}
-
-function SpotifyEmbed({ uri }: { uri: string }) {
-  const hostRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    const target = document.createElement('div');
-    host.appendChild(target);
-    let controller: SpotifyController | null = null;
-    let cancelled = false;
-    void loadSpotifyApi().then((api) => {
-      if (cancelled) return;
-      api.createController(target, { uri, height: 152 }, (c) => {
-        if (cancelled) {
-          c.destroy();
-          return;
-        }
-        controller = c;
-        // ponytail: autoplay via iFrame API; the browser can still veto audio
-        // without a fresh gesture — the embed then just shows its play button
-        c.addListener('ready', () => c.play());
-      });
-    });
-    return () => {
-      cancelled = true;
-      controller?.destroy();
-      host.replaceChildren();
-    };
-  }, [uri]);
-
-  return <div ref={hostRef} className="gift-embed--spotify" />;
-}
-
 export function YesNoPlayer({ data }: GiftPlayerProps) {
   const t = useTranslations('gift.player');
   const locale = useLocale();
@@ -105,6 +33,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const [noCount, setNoCount] = useState(0);
   const [noJump, setNoJump] = useState({ x: 0, y: 0 });
   const [muted, setMuted] = useState(false);
+  const [soundUnlocked, setSoundUnlocked] = useState(false);
 
   const recipient = (data.recipient_name || '').trim();
   const sender = (data.sender_name || '').trim();
@@ -120,18 +49,9 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
     [data.photos]
   );
   const ytId = youtubeId((data.youtube_url || '').trim());
-  const spUri = spotifyUri((data.spotify_url || '').trim());
-  const fallbackSongUrl =
-    !ytId && !spUri ? (data.youtube_url || data.spotify_url || '').trim() : '';
-  const lyrics = useMemo(
-    () => (data.lyrics || '').split('\n').map((l) => l.trim()).filter(Boolean),
-    [data.lyrics]
-  );
-  const showVinyl =
-    Boolean((data.song_title || '').trim() || (data.song_artist || '').trim()) ||
-    lyrics.length > 0 ||
-    Boolean(fallbackSongUrl);
-  const hasEmbeds = Boolean(ytId) || Boolean(spUri);
+  const songFile = (data.song_file || '').trim();
+  const fallbackSongUrl = !ytId && !songFile ? (data.youtube_url || '').trim() : '';
+  const showVinyl = Boolean(ytId) || Boolean(songFile) || Boolean(fallbackSongUrl);
 
   const toggleMute = () => {
     giftSound.setMuted(!muted);
@@ -141,6 +61,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
 
   const onOpen = () => {
     if (opening) return;
+    setSoundUnlocked(true);
     giftSound.open();
     setOpening(true);
     setTimeout(() => setStage('ask'), 620);
@@ -296,10 +217,7 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               song={
                 showVinyl
                   ? {
-                      title: (data.song_title || '').trim(),
-                      artist: (data.song_artist || '').trim(),
                       photo,
-                      lyrics,
                       playUrl: fallbackSongUrl || undefined,
                       playLabel: t('playSong'),
                     }
@@ -313,22 +231,13 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               onClose={() => setStage('envelope')}
             />
 
-            {hasEmbeds && (
-              <div className="gift-song">
-                {ytId && (
-                  <div className="gift-embed">
-                    <iframe
-                      src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&playsinline=1`}
-                      title={data.song_title || 'YouTube'}
-                      allow="autoplay; accelerometer; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-                {spUri && <SpotifyEmbed uri={spUri} />}
-              </div>
-            )}
+            <GiftSongPlayer
+              ytId={ytId}
+              audioUrl={songFile}
+              playUrl={ytId ? `https://youtu.be/${ytId}` : fallbackSongUrl || undefined}
+              unmute={soundUnlocked}
+              muted={muted}
+            />
 
             {days !== null && days >= 0 && (
               <p className="gift-countdown">

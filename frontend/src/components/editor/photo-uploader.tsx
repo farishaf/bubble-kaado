@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/context';
 import { useToast } from '@/lib/ui/toast';
 import { Spinner } from '@/lib/ui/spinner';
-import { uploadImage, removeImage, imagePathFromUrl } from '@/lib/supabase/storage';
+import { uploadAsset, removeAsset, assetPathFromUrl } from '@/lib/supabase/storage';
 
 type Props = {
   value: string[];
@@ -50,7 +50,7 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
           continue;
         }
         try {
-          const { url } = await uploadImage(file, user.id);
+          const { url } = await uploadAsset(file, user.id);
           results.push(url);
         } catch (e) {
           lastError = e instanceof Error ? e.message : t('uploadFailed');
@@ -77,9 +77,9 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
 
   const onRemove = async (idx: number) => {
     const url = value[idx];
-    const path = imagePathFromUrl(url);
+    const path = assetPathFromUrl(url);
     if (path) {
-      try { await removeImage(path); } catch { /* ignore */ }
+      try { await removeAsset(path); } catch { /* ignore */ }
     }
     onChange(value.filter((_, i) => i !== idx));
   };

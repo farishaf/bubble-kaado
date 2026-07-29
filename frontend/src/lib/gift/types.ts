@@ -1,4 +1,4 @@
-export type GiftFieldType = 'text' | 'textarea' | 'url' | 'date' | 'select' | 'photo-gallery';
+export type GiftFieldType = 'text' | 'textarea' | 'url' | 'date' | 'select' | 'photo-gallery' | 'audio';
 
 export type GiftField = {
   key: string;
@@ -8,6 +8,7 @@ export type GiftField = {
   help?: string;
   required?: boolean;
   maxLength?: number;
+  maxWords?: number;
   maxItems?: number;
   /** photo-gallery only: per-slot caption telling where photo N shows up */
   slotHints?: string[];

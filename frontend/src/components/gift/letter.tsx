@@ -7,7 +7,8 @@ import { giftSound } from '@/lib/gift/sound';
 
 gsap.registerPlugin(useGSAP);
 
-export type GiftLetterStyle = 'plain' | 'ruled' | 'vintage';
+export type GiftLetterStyle = 'plain' | 'ruled' | 'vintage' | 'crumple';
+const LETTER_STYLES: GiftLetterStyle[] = ['plain', 'ruled', 'vintage', 'crumple'];
 type Face = 'cover' | 'main' | 'back';
 
 /* ── Front cover designs ─────────────────────────────────────────── */
@@ -167,10 +168,7 @@ function Stickers({ set }: { set: string }) {
 /* ── Letter ──────────────────────────────────────────────────────── */
 
 type Song = {
-  title?: string;
-  artist?: string;
   photo?: string;
-  lyrics: string[];
   playUrl?: string;
   playLabel?: string;
 };
@@ -206,11 +204,12 @@ export function GiftLetter({
   labels,
   onClose,
 }: Props) {
-  const variant: GiftLetterStyle = style === 'ruled' || style === 'vintage' ? style : 'plain';
+  const variant: GiftLetterStyle = LETTER_STYLES.includes(style as GiftLetterStyle)
+    ? (style as GiftLetterStyle)
+    : 'plain';
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLSpanElement>(null);
-  const lyricsRef = useRef<HTMLDivElement>(null);
   const flipping = useRef(false);
   const mainRevealed = useRef(false);
   const [face, setFace] = useState<Face>('cover');
@@ -268,20 +267,6 @@ export function GiftLetter({
         });
       } else if (face === 'main' && bodyRef.current) {
         bodyRef.current.textContent = body;
-      }
-      if (face === 'back' && lyricsRef.current && song && song.lyrics.length > 0) {
-        const lines = gsap.utils.toArray<HTMLElement>('.gift-lyrics__line', lyricsRef.current);
-        gsap.set(lines, { opacity: 0.35 });
-        const tl = gsap.timeline({ delay: 0.5 });
-        lines.forEach((line, i) => {
-          tl.to(line, { opacity: 1, scale: 1.03, duration: reduced() ? 0.01 : 0.35, ease: 'power2.out' }, i * 1.4);
-          tl.to(
-            lyricsRef.current,
-            { scrollTop: Math.max(0, line.offsetTop - 80), duration: reduced() ? 0.01 : 0.4, ease: 'power2.inOut' },
-            i * 1.4
-          );
-          if (i > 0) tl.to(lines[i - 1], { opacity: 0.5, scale: 1, duration: 0.35 }, i * 1.4);
-        });
       }
     },
     { scope: rootRef, dependencies: [face, typed] }
@@ -403,22 +388,6 @@ export function GiftLetter({
                 <circle className="gift-vinyl__hole" cx="48" cy="48" r="3" />
               </svg>
             </div>
-            {(song.title || song.artist) && (
-              <p className="gift-lback__song">
-                {song.title}
-                {song.title && song.artist ? ' · ' : ''}
-                <span>{song.artist}</span>
-              </p>
-            )}
-            {song.lyrics.length > 0 && (
-              <div ref={lyricsRef} className="gift-lyrics">
-                {song.lyrics.map((line, i) => (
-                  <p key={i} className="gift-lyrics__line">
-                    {line}
-                  </p>
-                ))}
-              </div>
-            )}
             {song.playUrl && (
               <a
                 className="gift-btn gift-btn--small"
