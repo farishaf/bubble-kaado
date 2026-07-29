@@ -188,7 +188,13 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const [stage, setStage] = useState<Stage>('intro');
   const [opening, setOpening] = useState(false);
   const [noCount, setNoCount] = useState(0);
+  const [noHidden, setNoHidden] = useState(false);
+  const noVanishTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [muted, setMuted] = useState(false);
+
+  useEffect(() => () => {
+    if (noVanishTimer.current) clearTimeout(noVanishTimer.current);
+  }, []);
 
   const recipient = (data.recipient_name || '').trim();
   const sender = (data.sender_name || '').trim();
@@ -251,8 +257,18 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   // pointerenter/pointerdown (before a real click lands), so "never pressable"
   // still holds even though it no longer needs to outrun the cursor.
   const onNo = () => {
-    giftSound.no(noCount + 1);
-    setNoCount((c) => c + 1);
+    // Once it's on its way out, ignore further taps — ticking the count up
+    // more would just move the goalposts on a button that's already gone.
+    if (noVanishTimer.current) return;
+    const next = noCount + 1;
+    giftSound.no(next);
+    setNoCount(next);
+    // Sit tiny for a beat before unmounting: on mobile the yes-button recenters
+    // into its spot the instant it's gone, and an in-flight tap can land there
+    // by accident if the layout shifts under the finger with no warning.
+    if (1 - next * 0.13 <= 0.18) {
+      noVanishTimer.current = setTimeout(() => setNoHidden(true), 1000);
+    }
   };
 
   const onYes = () => {
@@ -270,9 +286,10 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const yesScale = Math.min(1 + noCount * 0.09, 1.6);
   const noScale = 1 - noCount * 0.13;
   const noFaceStage = Math.min(noCount, 3) as 0 | 1 | 2 | 3;
-  // Once it's shrunk past a fair target size, it's gone — matches the promise
-  // in the template copy: "sampai tersisa satu jawaban" (until one answer remains).
-  const noButtonVisible = noScale > 0.18;
+  // Once it's shrunk past a fair target size it starts leaving — matches the
+  // promise in the template copy: "sampai tersisa satu jawaban" (until one
+  // answer remains) — but stays on screen for the 1s pause before unmounting.
+  const noButtonVisible = !noHidden;
 
   return (
     <div ref={rootRef} className="gift-root" data-gift-theme={theme}>
