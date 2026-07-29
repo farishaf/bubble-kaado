@@ -94,6 +94,7 @@ func (h *InvitationsHandler) Create(c *gin.Context) {
 			c.JSON(http.StatusConflict, gin.H{"error": "slug already in use"})
 			return
 		}
+		_ = c.Error(err) // real cause lands in the request log as internal_err
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "create failed"})
 		return
 	}
@@ -109,6 +110,8 @@ func (h *InvitationsHandler) Create(c *gin.Context) {
 type updateInvitationReq struct {
 	Title string         `json:"title"`
 	Data  map[string]any `json:"data"`
+	// Optional: renames the public link. Empty keeps the current slug.
+	Slug string `json:"slug"`
 }
 
 func (h *InvitationsHandler) Update(c *gin.Context) {
@@ -130,18 +133,28 @@ func (h *InvitationsHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "title and data are required"})
 		return
 	}
+	if req.Slug != "" && !slugRE.MatchString(req.Slug) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "slug must be 3-62 chars, lowercase alphanumeric and hyphens"})
+		return
+	}
 	dataJSON, _ := json.Marshal(req.Data)
 	card, err := h.q.UpdateCardData(c.Request.Context(), repository.UpdateCardDataParams{
-		Slug:   c.Param("slug"),
-		UserID: userIDToUUID(user.ID),
-		Title:  req.Title,
-		Data:   dataJSON,
+		Slug:    c.Param("slug"),
+		UserID:  userIDToUUID(user.ID),
+		Title:   req.Title,
+		Data:    dataJSON,
+		NewSlug: req.Slug,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
+		if isUniqueViolation(err) {
+			c.JSON(http.StatusConflict, gin.H{"error": "slug already in use"})
+			return
+		}
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
 		return
 	}
@@ -165,6 +178,7 @@ func (h *InvitationsHandler) ListMine(c *gin.Context) {
 	}
 	cards, err := h.q.ListCardsByUser(c.Request.Context(), userIDToUUID(user.ID))
 	if err != nil {
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "list failed"})
 		return
 	}
@@ -192,6 +206,7 @@ func (h *InvitationsHandler) GetBySlug(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
+		_ = c.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "lookup failed"})
 		return
 	}

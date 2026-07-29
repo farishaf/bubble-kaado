@@ -14,7 +14,9 @@
     "account": "Akun saya",
     "dashboard": "Undangan saya",
     "bloom": "Bloom",
-    "gift": "Kaado"
+    "gift": "Kaado",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu"
   },
   "auth": {
     "signIn": {
@@ -185,6 +187,7 @@
     "lede": "Semua yang pernah kamu buat, dalam satu tempat.",
     "count": "{n} tersimpan",
     "newCta": "Buat baru",
+    "edit": "Ubah",
     "view": "Lihat",
     "copy": "Salin",
     "copied": "Tersalin",
@@ -311,19 +314,15 @@
       "saveAgain": "Perbarui simpanan",
       "savingBtn": "Menyimpan…",
       "saved": "Tersimpan di profilmu.",
-      "saveFail": "Gagal menyimpan. Coba lagi."
-    },
-    "puzzlePlayer": {
-      "wordmark": "Dekadoe",
-      "loading": "Kadomu lagi jalan",
-      "boxHint": "Ketuk gambar di tagnya",
-      "puzzleTitle": "Susun dulu, baru kebuka",
-      "puzzleHint": "Seret tiap keping ke kotaknya",
-      "puzzleProgress": "{n} dari {total} keping terpasang",
-      "revealTitle": "KADONYA KEBUKA",
-      "openLetter": "Baca suratnya",
-      "restart": "Ulang dari awal",
-      "pieceLabel": "Keping {n} — ketuk untuk memasang"
+      "saveFail": "Gagal menyimpan. Coba lagi.",
+      "loadFail": "Gagal memuat hadiah ini. Coba lagi.",
+      "emoji": "Sisipkan emoji",
+      "linkLabel": "Tautan hadiahnya",
+      "linkUpdate": "Perbarui tautan",
+      "linkUpdated": "Tautannya diperbarui.",
+      "linkTaken": "Tautan itu sudah dipakai. Coba yang lain.",
+      "linkInvalid": "3–62 karakter, huruf kecil, angka, dan tanda hubung.",
+      "linkHelp": "Ganti bagian terakhirnya jadi sesuatu yang gampang diingat. Tautan lamanya berhenti berlaku."
     },
     "player": {
       "forYou": "Untuk {name}",
@@ -342,11 +341,13 @@
       "soundOn": "Nyalakan suara",
       "soundOff": "Matikan suara",
       "envelopeHintClosed": "Ketuk amplopnya",
-      "envelopeHintAjar": "Ketuk lagi untuk mengambil surat",
+      "envelopeHintAjar": "Geser suratnya ke atas",
       "coverHint": "Ketuk untuk membuka surat",
       "flipToBack": "Balik suratnya",
       "flipToFront": "Kembali ke surat",
-      "closeLetter": "Tutup surat"
+      "closeLetter": "Tutup surat",
+      "audioPlay": "Putar",
+      "audioPause": "Jeda"
     }
   }
 }

@@ -52,6 +52,13 @@ func main() {
 
 	r := gin.New()
 	r.Use(middleware.RequestID())
+	// RequestLogger must wrap Recover (registered first here), not the other
+	// way round: Go's panic unwinding jumps straight to the nearest recover(),
+	// skipping any frame — including RequestLogger's post-c.Next() logging —
+	// sitting inside Recover's call. With this order a panic still produces a
+	// full request log line (status 500, path, duration, extracted error) in
+	// addition to Recover's own stack-trace log.
+	r.Use(middleware.RequestLogger(log))
 	r.Use(middleware.Recover(log))
 	r.Use(middleware.CORS(cfg.AllowedOrigins))
 

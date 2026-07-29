@@ -1,4 +1,12 @@
-export type GiftFieldType = 'text' | 'textarea' | 'url' | 'date' | 'select' | 'photo-gallery' | 'audio';
+export type GiftFieldType =
+  | 'text'
+  | 'textarea'
+  | 'url'
+  | 'date'
+  | 'select'
+  | 'photo-gallery'
+  | 'audio'
+  | 'toggle';
 
 export type GiftField = {
   key: string;
@@ -14,6 +22,8 @@ export type GiftField = {
   slotHints?: string[];
   options?: Array<{ value: string; label: string }>;
   info?: { title: string; body: string };
+  /** Field only renders while another field holds this value. */
+  showWhen?: { key: string; equals: string };
 };
 
 export type GiftData = Record<string, string>;

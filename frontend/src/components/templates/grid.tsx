@@ -30,10 +30,10 @@ export function TemplateGrid({ templates, categories, basePath }: Props) {
               aria-selected={isActive}
               onClick={() => setActive(c.key)}
               data-animate="filter-chip"
-              className={`relative px-4 h-9 inline-flex items-center font-body text-sm rounded-pill border transition-colors ${
+              className={`relative px-4 h-9 inline-flex items-center whitespace-nowrap font-body text-[11px] font-semibold uppercase tracking-[0.12em] rounded-sm border transition-colors ${
                 isActive
-                  ? 'bg-ink text-paper border-ink'
-                  : 'bg-paper text-ink-2 border-muted hover:border-ink-2 hover:text-ink'
+                  ? 'bg-kd-forest text-kd-cream border-kd-forest'
+                  : 'bg-kd-cream text-ink-2 border-kd-forest/25 hover:border-kd-forest hover:text-kd-forest'
               }`}
             >
               {c.label}

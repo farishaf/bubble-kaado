@@ -14,7 +14,9 @@
     "account": "My account",
     "dashboard": "My invitations",
     "bloom": "Bloom",
-    "gift": "Gift"
+    "gift": "Gift",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "auth": {
     "signIn": {
@@ -178,13 +180,24 @@
     "addAudio": "Upload MP3",
     "removeAudio": "Remove song",
     "uploadNotAudio": "Only audio files (MP3, M4A, WAV) are allowed.",
-    "uploadAudioTooBig": "Songs can be at most 12 MB."
+    "uploadAudioTooBig": "Songs can be at most 12 MB.",
+    "cropPhoto": "Crop photo",
+    "cropTitle": "Crop photo",
+    "cropApply": "Apply",
+    "cropCancel": "Cancel",
+    "audioAdd": "Upload MP3",
+    "audioReady": "Song file saved",
+    "audioRemove": "Remove song",
+    "audioNotAudio": "The file needs to be an MP3 or M4A.",
+    "audioTooBig": "That file is over 10 MB. Compress it first.",
+    "audioTooLong": "That song is over 5 minutes. Trim it first."
   },
   "dashboard": {
     "heading": "My creations",
     "lede": "Everything you've made, in one place.",
     "count": "{n} saved",
     "newCta": "Create new",
+    "edit": "Edit",
     "view": "View",
     "copy": "Copy",
     "copied": "Copied",
@@ -311,7 +324,15 @@
       "saveAgain": "Update saved",
       "savingBtn": "Saving…",
       "saved": "Saved to your profile.",
-      "saveFail": "Couldn't save. Try again."
+      "saveFail": "Couldn't save. Try again.",
+      "loadFail": "Couldn't load this gift. Try again.",
+      "emoji": "Insert emoji",
+      "linkLabel": "Gift link",
+      "linkUpdate": "Update link",
+      "linkUpdated": "Link updated.",
+      "linkTaken": "That link is taken. Try another.",
+      "linkInvalid": "3–62 characters: lowercase letters, numbers, hyphens.",
+      "linkHelp": "Change the tail to something memorable. The old link stops working."
     },
     "puzzlePlayer": {
       "wordmark": "Dekadoe",
@@ -342,11 +363,13 @@
       "soundOn": "Turn sound on",
       "soundOff": "Turn sound off",
       "envelopeHintClosed": "Tap the envelope",
-      "envelopeHintAjar": "Tap again to take the letter",
+      "envelopeHintAjar": "Swipe the letter up",
       "coverHint": "Tap to open the letter",
       "flipToBack": "Flip the letter",
       "flipToFront": "Back to the letter",
-      "closeLetter": "Close the letter"
+      "closeLetter": "Close the letter",
+      "audioPlay": "Play",
+      "audioPause": "Pause"
     }
   }
 }

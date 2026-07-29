@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { giftSound } from '@/lib/gift/sound';
+import { Blossom, Crane, RegMark } from './motifs';
 
 gsap.registerPlugin(useGSAP);
 
@@ -28,21 +29,6 @@ function HeartShape({ className, size = 16 }: { className?: string; size?: numbe
         d="M8 14 C4 10.8 1 8.4 1 5.4 C1 3.2 2.8 1.6 4.8 1.6 C6.1 1.6 7.3 2.3 8 3.4 C8.7 2.3 9.9 1.6 11.2 1.6 C13.2 1.6 15 3.2 15 5.4 C15 8.4 12 10.8 8 14 Z"
         fill="currentColor"
       />
-    </svg>
-  );
-}
-
-function Bloom({ className, size = 18 }: { className?: string; size?: number }) {
-  return (
-    <svg className={className} width={size} height={size} viewBox="0 0 20 20" aria-hidden="true">
-      <g fill="currentColor">
-        <circle cx="10" cy="4.5" r="3.4" />
-        <circle cx="15.5" cy="8.5" r="3.4" />
-        <circle cx="13.4" cy="14.8" r="3.4" />
-        <circle cx="6.6" cy="14.8" r="3.4" />
-        <circle cx="4.5" cy="8.5" r="3.4" />
-      </g>
-      <circle cx="10" cy="10" r="2.6" fill="var(--gift-card)" />
     </svg>
   );
 }
@@ -90,7 +76,7 @@ export function LetterCover({ design, title }: { design: string; title: string }
   );
 }
 
-/* ── Stamp ───────────────────────────────────────────────────────── */
+/* ── Signature stamp ─────────────────────────────────────────────── */
 
 function Stamp({ kind }: { kind: string }) {
   if (kind === 'none') return null;
@@ -153,15 +139,63 @@ function Stamp({ kind }: { kind: string }) {
 
 /* ── Stickers ────────────────────────────────────────────────────── */
 
+/* Sanctioned sticker marks. Hearts and sparkles predate the motif vocabulary
+   and aren't part of it, so cards saved with those fall through to the nearest
+   legitimate mark rather than rendering nothing. */
+const STICKER_ALIAS: Record<string, string> = { hearts: 'blooms', stars: 'cranes' };
+
+const STICKER_SHAPE = {
+  blooms: (size: number) => (
+    <Blossom size={size} color="currentColor" centerColor="var(--gift-card)" />
+  ),
+  cranes: (size: number) => <Crane size={size} />,
+  marks: (size: number) => <RegMark size={size} />,
+} as const;
+
 function Stickers({ set }: { set: string }) {
-  if (set !== 'hearts' && set !== 'stars' && set !== 'blooms') return null;
-  const Shape = set === 'hearts' ? HeartShape : set === 'stars' ? Sparkle : Bloom;
+  const kind = STICKER_ALIAS[set] ?? set;
+  if (!(kind in STICKER_SHAPE)) return null;
+  const shape = STICKER_SHAPE[kind as keyof typeof STICKER_SHAPE];
   return (
     <>
-      <span className="gift-sticker gift-sticker--a"><Shape size={22} /></span>
-      <span className="gift-sticker gift-sticker--b"><Shape size={16} /></span>
-      <span className="gift-sticker gift-sticker--c"><Shape size={19} /></span>
+      <span className="gift-sticker gift-sticker--a" data-para="10">{shape(30)}</span>
+      <span className="gift-sticker gift-sticker--b" data-para="12">{shape(22)}</span>
+      <span className="gift-sticker gift-sticker--c" data-para="8">{shape(26)}</span>
     </>
+  );
+}
+
+/* ── Vinyl disc (shared: media column, mobile strip, lyrics back) ── */
+
+export function Vinyl({ size, photo, clipId }: { size: number; photo?: string; clipId: string }) {
+  return (
+    <div className="gift-vinyl" aria-hidden="true">
+      <svg width={size} height={size} viewBox="0 0 96 96">
+        <defs>
+          <clipPath id={clipId}>
+            <circle cx="48" cy="48" r="17" />
+          </clipPath>
+        </defs>
+        <circle className="gift-vinyl__disc" cx="48" cy="48" r="46" />
+        <circle className="gift-vinyl__groove" cx="48" cy="48" r="38" />
+        <circle className="gift-vinyl__groove" cx="48" cy="48" r="31" />
+        <circle className="gift-vinyl__groove" cx="48" cy="48" r="24" />
+        {photo ? (
+          <image
+            href={photo}
+            x="31"
+            y="31"
+            width="34"
+            height="34"
+            clipPath={`url(#${clipId})`}
+            preserveAspectRatio="xMidYMid slice"
+          />
+        ) : (
+          <circle className="gift-vinyl__label" cx="48" cy="48" r="17" />
+        )}
+        <circle className="gift-vinyl__hole" cx="48" cy="48" r="3" />
+      </svg>
+    </div>
   );
 }
 
@@ -177,6 +211,8 @@ type Props = {
   style?: string;
   front?: string;
   stampKind?: string;
+  /** Uploaded stamp/signature PNG. Replaces the built-in stamp when present. */
+  stampImage?: string;
   stickerSet?: string;
   coverTitle: string;
   coverHint: string;
@@ -193,6 +229,7 @@ export function GiftLetter({
   style = 'plain',
   front = 'classic',
   stampKind = 'love',
+  stampImage,
   stickerSet = 'hearts',
   coverTitle,
   coverHint,
@@ -209,13 +246,22 @@ export function GiftLetter({
     : 'plain';
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLSpanElement>(null);
+  const lyricsRef = useRef<HTMLDivElement>(null);
+  const paraRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const flipping = useRef(false);
   const mainRevealed = useRef(false);
   const [face, setFace] = useState<Face>('cover');
   const [typed, setTyped] = useState(false);
 
   const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const paras = body.split('\n').filter((l) => l.trim() !== '');
+  const pics = photos ?? [];
+  // mobile scatter: photo i floats just before paragraph scatterAt[i]
+  const scatterAt = pics.map((_, i) =>
+    Math.min(Math.max(0, paras.length - 1), Math.floor((i * paras.length) / Math.max(1, pics.length)))
+  );
+  const hasSong = Boolean(song && (song.title || song.artist || song.lyrics.length > 0));
 
   const { contextSafe } = useGSAP(
     () => {
@@ -225,48 +271,95 @@ export function GiftLetter({
       if (face === 'main' && !mainRevealed.current) {
         mainRevealed.current = true;
         if (!reduced()) {
+          // The spread is ONE folded sheet: it lands on the table slightly
+          // tilted, then both pages flatten out from the center crease while
+          // the fold shadow settles. Photos/polaroids stagger in last.
+          const spread = rootRef.current?.querySelector<HTMLElement>('.gift-spread');
           const photosSheet = rootRef.current?.querySelector<HTMLElement>('.gift-sheet--photos');
           const textSheet = rootRef.current?.querySelector<HTMLElement>('.gift-sheet--text');
-          const frames = gsap.utils.toArray<HTMLElement>('.gift-frame', rootRef.current);
+          const frames = gsap.utils.toArray<HTMLElement>('.gift-frame, .gift-scatter', rootRef.current);
           const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-          if (photosSheet) {
-            gsap.set(photosSheet, { transformOrigin: '100% 50%', rotateY: 78, opacity: 0 });
-            tl.to(photosSheet, { rotateY: 0, opacity: 1, duration: 0.9 });
-          }
-          if (textSheet) {
-            gsap.set(textSheet, { transformOrigin: '0% 50%', rotateY: -78, opacity: 0 });
-            tl.to(textSheet, { rotateY: 0, opacity: 1, duration: 0.9 }, photosSheet ? '-=0.55' : 0);
+          if (spread) {
+            gsap.set(spread, { transformPerspective: 1600, rotateX: 8, y: 24, scale: 0.97, opacity: 0 });
+            if (photosSheet) gsap.set(photosSheet, { transformOrigin: '100% 50%', rotateY: 26 });
+            if (textSheet) gsap.set(textSheet, { transformOrigin: '0% 50%', rotateY: -26 });
+            tl.addLabel('land')
+              .to(spread, { opacity: 1, y: 0, duration: 0.45 }, 'land')
+              .to(spread, { rotateX: 0, scale: 1, duration: 0.9 }, 'land')
+              .addLabel('flatten', 'land+=0.12');
+            if (photosSheet) tl.to(photosSheet, { rotateY: 0, duration: 0.9 }, 'flatten');
+            if (textSheet) tl.to(textSheet, { rotateY: 0, duration: 0.9 }, 'flatten+=0.08');
           }
           gsap.set(frames, { opacity: 0, scale: 0.92 });
-          tl.to(frames, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08 }, '-=0.3');
+          tl.to(frames, { opacity: 1, scale: 1, duration: 0.4, stagger: 0.08 }, '-=0.4');
         }
       }
 
-      // Typewriter on the main face; lyric walk on the back face.
-      if (face === 'main' && bodyRef.current && !typed) {
-        const el = bodyRef.current;
-        if (reduced()) {
-          el.textContent = body;
-          setTyped(true);
-          return;
-        }
-        const proxy = { i: 0 };
-        gsap.to(proxy, {
-          i: body.length,
-          duration: Math.min(1.2 + body.length * 0.028, 8),
-          ease: 'none',
-          delay: 0.35,
-          snap: { i: 1 },
-          onUpdate() {
-            el.textContent = body.slice(0, proxy.i);
-          },
-          onComplete() {
-            el.textContent = body;
+      // Typewriter across the paragraphs on the main face.
+      if (face === 'main') {
+        const spans = paraRefs.current.filter((s): s is HTMLSpanElement => Boolean(s));
+        if (!typed && spans.length > 0) {
+          if (reduced()) {
+            spans.forEach((el, i) => (el.textContent = paras[i] ?? ''));
             setTyped(true);
-          },
+          } else {
+            const tl = gsap.timeline({ delay: 0.35, onComplete: () => setTyped(true) });
+            spans.forEach((el, i) => {
+              const text = paras[i] ?? '';
+              const proxy = { n: 0 };
+              tl.to(proxy, {
+                n: text.length,
+                duration: Math.min(0.4 + text.length * 0.028, 4),
+                ease: 'none',
+                snap: { n: 1 },
+                onUpdate() {
+                  el.textContent = text.slice(0, proxy.n);
+                },
+                onComplete() {
+                  el.textContent = text;
+                },
+              });
+            });
+          }
+        } else {
+          spans.forEach((el, i) => (el.textContent = paras[i] ?? ''));
+        }
+      }
+
+      // Pointer parallax on the open letter: layers tagged data-para drift at
+      // different rates. Desktop pointers only; reduced-motion opts out.
+      if (face === 'main' && !reduced() && window.matchMedia('(pointer: fine)').matches) {
+        const layers = gsap.utils.toArray<HTMLElement>('[data-para]', rootRef.current);
+        const setters = layers.map((el) => ({
+          fx: gsap.quickTo(el, 'x', { duration: 0.6, ease: 'power2.out' }),
+          fy: gsap.quickTo(el, 'y', { duration: 0.6, ease: 'power2.out' }),
+          f: Number(el.dataset.para) || 4,
+        }));
+        const onMove = (e: PointerEvent) => {
+          const nx = e.clientX / window.innerWidth - 0.5;
+          const ny = e.clientY / window.innerHeight - 0.5;
+          for (const s of setters) {
+            s.fx(nx * s.f);
+            s.fy(ny * s.f);
+          }
+        };
+        window.addEventListener('pointermove', onMove);
+        return () => window.removeEventListener('pointermove', onMove);
+      }
+
+      if (face === 'back' && lyricsRef.current && song && song.lyrics.length > 0) {
+        const lines = gsap.utils.toArray<HTMLElement>('.gift-lyrics__line', lyricsRef.current);
+        gsap.set(lines, { opacity: 0.35 });
+        const tl = gsap.timeline({ delay: 0.5 });
+        lines.forEach((line, i) => {
+          tl.to(line, { opacity: 1, scale: 1.03, duration: reduced() ? 0.01 : 0.35, ease: 'power2.out' }, i * 1.4);
+          tl.to(
+            lyricsRef.current,
+            { scrollTop: Math.max(0, line.offsetTop - 80), duration: reduced() ? 0.01 : 0.4, ease: 'power2.inOut' },
+            i * 1.4
+          );
+          if (i > 0) tl.to(lines[i - 1], { opacity: 0.5, scale: 1, duration: 0.35 }, i * 1.4);
         });
-      } else if (face === 'main' && bodyRef.current) {
-        bodyRef.current.textContent = body;
       }
     },
     { scope: rootRef, dependencies: [face, typed] }
@@ -319,29 +412,77 @@ export function GiftLetter({
         {face === 'main' && (
           <div className="gift-lface gift-lface--main">
             <Stickers set={stickerSet} />
-            <div className="gift-spread">
-              {photos && photos.length > 0 && (
+            {/* mobile: vinyl strip pinned above the message */}
+            {hasSong && (
+              <div className="gift-vinyl-strip" data-para="7">
+                <Vinyl size={56} photo={song?.photo} clipId="gift-vinyl-label-strip" />
+                <div className="gift-vinyl-strip__meta">
+                  {song?.title && <p className="gift-vinyl-strip__title">{song.title}</p>}
+                  {song?.artist && <p className="gift-vinyl-strip__artist">{song.artist}</p>}
+                </div>
+              </div>
+            )}
+            <div className="gift-spread" data-para="4">
+              {(pics.length > 0 || hasSong) && (
                 <div className="gift-sheet gift-sheet--photos">
-                  <div className="gift-sheet__grid" data-count={photos.length}>
-                    {photos.map((src, i) => (
-                      <figure key={i} className="gift-frame">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="" />
-                      </figure>
-                    ))}
+                  <div className="gift-media">
+                    {pics.length > 0 && (
+                      <div className="gift-media__grid" data-count={pics.length}>
+                        {pics.map((src, i) => (
+                          <figure key={i} className="gift-frame kd-stamp-edge">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={src} alt="" />
+                          </figure>
+                        ))}
+                      </div>
+                    )}
+                    {hasSong && (
+                      <div className="gift-media__vinyl" data-para="9">
+                        <Vinyl size={110} photo={song?.photo} clipId="gift-vinyl-label-media" />
+                        {(song?.title || song?.artist) && (
+                          <p className="gift-media__song">
+                            {song?.title && <strong>{song.title}</strong>}
+                            {song?.artist}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
               <div className={`gift-sheet gift-sheet--text gift-sheet--${variant}`}>
                 <p className="gift-letter__text">{greeting}</p>
-                <p className="gift-letter__text gift-letter__body" aria-label={body}>
-                  <span ref={bodyRef} aria-hidden="true" />
-                  {!typed && <span className="gift-letter__caret" aria-hidden="true" />}
-                </p>
-                {(signed || stampKind !== 'none') && (
+                <div className="gift-letter__body" aria-label={body}>
+                  {paras.map((_, i) => (
+                    <Fragment key={i}>
+                      {pics.map((src, p) =>
+                        scatterAt[p] === i ? (
+                          <figure
+                            key={p}
+                            aria-hidden="true"
+                            className={`gift-scatter ${p % 2 === 0 ? 'gift-scatter--l' : 'gift-scatter--r'}`}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={src} alt="" />
+                          </figure>
+                        ) : null
+                      )}
+                      <p className="gift-letter__text gift-letter__para" aria-hidden="true">
+                        <span ref={(el) => { paraRefs.current[i] = el; }} />
+                        {!typed && i === paras.length - 1 && <span className="gift-letter__caret" aria-hidden="true" />}
+                      </p>
+                    </Fragment>
+                  ))}
+                </div>
+                {(signed || stampImage || stampKind !== 'none') && (
                   <div className="gift-letter__sign">
+                    {stampImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={stampImage} alt="" className="gift-stamp gift-stamp--custom" />
+                    ) : (
+                      <Stamp kind={stampKind} />
+                    )}
                     {signed && <p className="gift-letter__text gift-letter__signed">— {signed}</p>}
-                    <Stamp kind={stampKind} />
                   </div>
                 )}
               </div>
@@ -361,32 +502,8 @@ export function GiftLetter({
 
         {face === 'back' && song && (
           <div className="gift-lface gift-lface--back">
-            <div className="gift-vinyl gift-vinyl--big" aria-hidden="true">
-              <svg width="150" height="150" viewBox="0 0 96 96">
-                <defs>
-                  <clipPath id="gift-vinyl-label-back">
-                    <circle cx="48" cy="48" r="17" />
-                  </clipPath>
-                </defs>
-                <circle className="gift-vinyl__disc" cx="48" cy="48" r="46" />
-                <circle className="gift-vinyl__groove" cx="48" cy="48" r="38" />
-                <circle className="gift-vinyl__groove" cx="48" cy="48" r="31" />
-                <circle className="gift-vinyl__groove" cx="48" cy="48" r="24" />
-                {song.photo ? (
-                  <image
-                    href={song.photo}
-                    x="31"
-                    y="31"
-                    width="34"
-                    height="34"
-                    clipPath="url(#gift-vinyl-label-back)"
-                    preserveAspectRatio="xMidYMid slice"
-                  />
-                ) : (
-                  <circle className="gift-vinyl__label" cx="48" cy="48" r="17" />
-                )}
-                <circle className="gift-vinyl__hole" cx="48" cy="48" r="3" />
-              </svg>
+            <div className="gift-vinyl--big">
+              <Vinyl size={150} photo={song.photo} clipId="gift-vinyl-label-back" />
             </div>
             {song.playUrl && (
               <a

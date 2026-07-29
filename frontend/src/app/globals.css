@@ -22,6 +22,24 @@
   --color-warning:      oklch(0.78 0.110  80);
   --color-danger:       oklch(0.62 0.180  25);
 
+  /* Kaado editorial-collage palette — converted from the Kanazawa motif spec.
+     Paper white is the lightest surface and cream sits under it as the page
+     ground; that order matters, the two used to be inverted. */
+  --color-kd-paper:    oklch(0.976 0.007 89);  /* #F9F7F2 paper white — card surfaces */
+  --color-kd-paper-2:  oklch(0.905 0.014 86);  /* between cream and sage — recessed panels */
+  --color-kd-sage:     oklch(0.862 0.012 154); /* #CCD4CE — grid lines, tints, pattern fills */
+  --color-kd-forest:   oklch(0.363 0.060 172); /* #14483A Kaga green — authority surfaces */
+  --color-kd-forest-2: oklch(0.300 0.055 172);
+  --color-kd-coral:    oklch(0.679 0.201 33);  /* #FB5B3B Shu vermilion — accent only */
+  /* the bright vermilion is a *mark* colour — it reads ~2.9:1 on cream, so it
+     must never carry text. This darker sibling is the text-safe one (~4.9:1). */
+  --color-kd-coral-ink: oklch(0.520 0.165 33);
+  --color-kd-cream:    oklch(0.935 0.018 86);  /* #EFE9DC washi cream — page ground */
+  /* Sakura pink is the smallest quantity and the loudest note (~2% of a
+     surface); gold is rarer still, a garnish for craft/heritage references. */
+  --color-kd-pink:     oklch(0.860 0.109 331); /* #FBB7F2 */
+  --color-kd-gold:     oklch(0.801 0.109 81);  /* #E2B768 */
+
   --font-display: "Fraunces", ui-serif, Georgia, serif;
   --font-body:    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono:    "JetBrains Mono", ui-monospace, monospace;
@@ -290,11 +308,170 @@
   transform: translateY(8px);
 }
 
+/* ── Kaado shared collage motifs ────────────────────────────────────── */
+
+.kd-kicker {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.kd-kicker::before { content: '/'; margin-right: 1px; }
+.kd-kicker::after  { content: '/'; margin-left: 1px; }
+
+.kd-dots {
+  background-image: radial-gradient(oklch(0.22 0.015 60 / 0.14) 1px, transparent 1.5px);
+  background-size: 15px 15px;
+}
+
+/* Shima (stripe) fill — the motif spec's substitute for a tint: wherever the
+   instinct is to drop a colour's opacity, stripe it at full opacity instead.
+   4px bar / 6px gap is the 1:1.5 ratio the spec calls for. Only 0° and 90°. */
+.kd-shima {
+  background-image: repeating-linear-gradient(
+    90deg, var(--kd-shima, var(--color-kd-sage)) 0 4px, transparent 4px 10px
+  );
+}
+
+.kd-shima--h {
+  background-image: repeating-linear-gradient(
+    0deg, var(--kd-shima, var(--color-kd-sage)) 0 4px, transparent 4px 10px
+  );
+}
+
+/* Perforated postage-stamp edge: solid interior + punched-hole ring in the padding */
+.kd-stamp-edge {
+  --r: 4px;
+  padding: calc(var(--r) * 1.6);
+  mask:
+    conic-gradient(#000 0 0) content-box,
+    radial-gradient(circle var(--r), #0000 98%, #000) round
+      calc(var(--r) * -1.5) calc(var(--r) * -1.5) / calc(var(--r) * 3) calc(var(--r) * 3);
+}
+
+/* ── Kaado collage primitives (product chrome, site-wide) ───────────── */
+
+/* paper grain — two stocks so no two surfaces share a visible tile. Layered as
+   an image *under* a near-opaque colour veil, so the strength knob is the
+   veil's alpha rather than a blend mode (no stacking-context surprises, no
+   pseudo-element needed). Site-scope so chrome and the gift player share them. */
+:root {
+  --kd-tex-crumple: url('/texture/paper-texture-2.avif');
+  --kd-tex-weave:   url('/texture/paper-texture-1.jpeg');
+  --kd-veil: color-mix(in oklch, var(--color-kd-cream) 82%, transparent);
+  --kd-line: color-mix(in oklch, var(--color-kd-forest) 20%, transparent);
+}
+
+/* textured sheet — the .gift-panel recipe, reusable on any chrome surface */
+.kd-sheet {
+  background-color: var(--color-kd-cream);
+  background-image: linear-gradient(var(--kd-veil), var(--kd-veil)), var(--kd-tex-weave);
+  background-size: auto, 280px;
+  background-position: center, 80% 55%;
+}
+
+/* Rules are their own boxes, not borders, so GSAP can draw them with scaleX
+   (a border on a scaled element would scale the whole element instead). */
+.kd-rule {
+  display: block;
+  height: 2px;
+  background: var(--color-kd-forest);
+  transform-origin: left center;
+}
+
+.kd-rule--hair {
+  height: 1px;
+  background: var(--kd-line);
+}
+
+.kd-rule--dashed {
+  height: 0;
+  background: none;
+  border-top: 1px dashed color-mix(in oklch, var(--color-kd-forest) 35%, transparent);
+}
+
+/* squared, uppercase micro-label button — the collage CTA voice */
+.kd-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-kd-forest);
+  color: var(--color-kd-cream);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* gate 49: clickable text never wraps to two lines */
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 200ms ease-out, transform 80ms ease-in;
+}
+
+.kd-btn:hover { background: var(--color-kd-forest-2); }
+.kd-btn:active { transform: translateY(1px); }
+.kd-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.kd-btn--ghost {
+  background: transparent;
+  color: var(--color-kd-forest);
+  box-shadow: inset 0 0 0 1.5px color-mix(in oklch, var(--color-kd-forest) 35%, transparent);
+}
+
+.kd-btn--ghost:hover { background: color-mix(in oklch, var(--color-kd-sage) 55%, transparent); }
+
+.kd-btn--sm { height: 32px; padding: 0 14px; font-size: 10px; }
+.kd-btn--lg { height: 48px; padding: 0 26px; font-size: 12px; }
+
+/* coral corner tag — the collage badge motif, mark-only (never text) */
+.kd-tag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-kd-coral);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* squared field, forest focus — matches the button voice */
+.kd-field {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  background: var(--color-kd-paper);
+  border: 1px solid var(--kd-line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  transition: border-color 160ms ease-out;
+}
+
+.kd-field:focus {
+  outline: none;
+  border-color: var(--color-kd-forest);
+}
+
 /* ── Kaado gift ─────────────────────────────────────────────────────── */
 
 [data-gift-theme] {
   --gift-ink:   var(--color-ink);
   --gift-ink-2: var(--color-ink-2);
+
+  /* weave is near-white, so it takes a thinner veil than the crumple to read */
+  --kd-sheet-veil:  color-mix(in oklch, var(--gift-card) 80%, transparent);
+
+  /* airmail barber stripe — postal red / blue */
+  --kd-air-red:  oklch(0.55 0.20 27);
+  --kd-air-blue: oklch(0.46 0.16 258);
 }
 
 [data-gift-theme="rose"] {
@@ -339,7 +516,18 @@
   font-family: var(--font-body);
 }
 
+/* signature texture: faint dotted grid across the whole player */
+.gift-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(oklch(0.22 0.015 60 / 0.07) 1px, transparent 1.5px);
+  background-size: 16px 16px;
+  pointer-events: none;
+}
+
 .gift-stage {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
@@ -375,10 +563,18 @@
   font-size: 18px;
 }
 
+/* ── Intro parcel (present box) ─────────────────────────────────────── */
+
 .gift-box {
-  margin: 28px auto 30px;
-  width: 150px;
+  appearance: none;
+  border: 0;
+  background: none;
+  display: block;
+  cursor: pointer;
+  margin: 28px auto 20px;
+  width: 180px;
   animation: giftBob 2.4s ease-in-out infinite;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes giftBob {
@@ -398,36 +594,124 @@
   80% { transform: rotate(4deg); }
 }
 
-.gift-box__lid {
-  transform-origin: 60px 44px;
+.gift-parcel__body { fill: oklch(0.82 0.05 75); }
+.gift-parcel__side { fill: oklch(0.76 0.055 72); }
+.gift-parcel__tape { fill: var(--gift-accent); opacity: 0.9; }
+.gift-parcel__tape-lite { fill: var(--gift-accent); opacity: 0.45; }
+.gift-parcel__label { fill: var(--gift-card); }
+.gift-parcel__ink { fill: none; stroke: var(--gift-ink); stroke-width: 2; stroke-linecap: round; opacity: 0.55; }
+.gift-parcel__shadow { fill: var(--gift-ink); opacity: 0.08; }
+
+.gift-box .gift-parcel__flap {
+  transform-origin: 90px 40px;
   transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 500ms ease;
 }
 
-.gift-box.is-opening .gift-box__lid {
-  transform: translateY(-30px) rotate(-12deg);
+.gift-box.is-opening .gift-parcel__flap {
+  transform: translateY(-26px) rotate(-10deg);
   opacity: 0;
 }
 
-.gift-box__base, .gift-box__lid-rect { fill: var(--gift-accent); }
-.gift-box__ribbon { fill: var(--gift-card); }
-.gift-box__bow { fill: none; stroke: var(--gift-card); stroke-width: 4; stroke-linecap: round; }
+/* ── Collage stage panel (intro / ask / yay) ───────────────────────── */
 
-.gift-card {
+.gift-panel {
+  position: relative;
   width: 100%;
-  max-width: 400px;
-  background: var(--gift-card);
-  border-radius: var(--radius-xl);
-  padding: 32px 24px;
-  text-align: center;
+  max-width: 410px;
+  background-color: var(--gift-card);
+  background-image: linear-gradient(var(--kd-sheet-veil), var(--kd-sheet-veil)), var(--kd-tex-weave);
+  background-size: auto, 280px;
+  background-position: center, 80% 55%;
+  border: 1.5px solid oklch(0.22 0.015 60 / 0.16);
+  border-radius: var(--radius-md);
+  overflow: hidden;
   box-shadow: var(--shadow-3);
+  text-align: center;
+}
+
+.gift-panel__band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--color-kd-forest);
+  color: var(--color-kd-cream);
+}
+
+/* Direct child only: this dims the plus mark, not the blossoms nested inside
+   the scatter — those are the loud note and stay at full strength. */
+.gift-panel__band > svg { opacity: 0.55; }
+
+.gift-panel__body {
+  position: relative;
+  padding: 26px 22px 28px;
+}
+
+/* small coral corner tag — collage badge motif */
+.gift-panel__corner {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  background: var(--color-kd-coral);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.gift-panel__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-top: 1px dashed oklch(0.22 0.015 60 / 0.28);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gift-ink-2);
+}
+
+/* The foot carries a shima rule now instead of a wordmark, so it only needs
+   the dashed tear line above it and enough height for the stripes. */
+.gift-panel__foot { --kd-shima: var(--color-kd-sage); }
+
+/* the ask stage runs chromeless — no band, no foot — so the body carries the
+   top inset the band used to provide */
+.gift-panel--bare .gift-panel__body { padding-top: 34px; }
+
+.gift-intro-title {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--gift-ink);
+}
+
+/* mascot mounted like a stamped photo */
+.gift-mascot-frame {
+  display: inline-block;
+  background: oklch(0.99 0.005 85);
+  transform: rotate(-2.5deg);
+}
+
+/* success photo as a tilted polaroid */
+.gift-photo-frame {
+  display: inline-block;
+  max-width: 82%;
+  padding: 8px 8px 22px;
+  background: oklch(0.99 0.005 85);
+  box-shadow: var(--shadow-2);
+  transform: rotate(2deg);
+  margin-bottom: 14px;
 }
 
 .gift-photo {
+  display: block;
   width: 100%;
-  max-height: 240px;
+  max-height: 220px;
   object-fit: cover;
-  border-radius: var(--radius-lg);
-  margin-bottom: 8px;
 }
 
 .gift-photo--wobble {
@@ -491,6 +775,7 @@
 }
 
 .gift-actions {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -506,12 +791,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 500;
   padding: 0 26px;
   height: 46px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 200ms ease;
 }
 
@@ -528,6 +814,17 @@
 .gift-btn--no {
   background: var(--gift-soft);
   color: var(--gift-ink-2);
+}
+
+/* shrink mode: snappy scale-down so each attempt visibly shrinks the button */
+.gift-btn--shrink {
+  transition: transform 150ms ease-out;
+  /* the tap must reach onPointerDown as a shrink, not as a scroll gesture */
+  touch-action: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-btn--shrink { transition-duration: 1ms; }
 }
 
 .gift-btn--small {
@@ -601,6 +898,9 @@
   white-space: pre-line;
 }
 
+.gift-letter__para { margin-top: 10px; }
+.gift-letter__para:first-of-type { margin-top: 14px; }
+
 .gift-letter__signed {
   margin-top: 20px;
   text-align: right;
@@ -638,14 +938,53 @@
   width: 1px;
   height: 1px;
   overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
+  box-shadow: var(--shadow-2);
 }
 
-.gift-vinyl-card {
+.gift-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ── Uploaded-mp3 bar: native audio element + vinyl as the player ───── */
+
+.gift-audiobar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--gift-card);
+  border: 1px solid oklch(0.22 0.015 60 / 0.1);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-2);
+  text-align: left;
+}
+
+/* the bar draws its own transport, so the native element stays out of flow */
+.gift-audiobar > audio { display: none; }
+
+.gift-audiobar .gift-vinyl svg { animation-play-state: paused; }
+.gift-audiobar[data-playing="true"] .gift-vinyl svg { animation-play-state: running; }
+
+.gift-audiobar__meta { flex: 1; min-width: 0; }
+.gift-audiobar__title { font-family: var(--font-display); font-size: 15px; }
+.gift-audiobar__artist { margin-top: 1px; font-size: 12px; color: var(--gift-ink-2); }
+
+.gift-audiobar__btn {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--gift-accent);
+  color: var(--gift-accent-ink);
+  cursor: pointer;
   gap: 10px;
   background: var(--gift-card);
   border-radius: var(--radius-lg);
@@ -706,6 +1045,7 @@
   text-align: center;
   color: var(--gift-ink-2);
   background: var(--gift-card);
+  border: 1px solid oklch(0.22 0.015 60 / 0.1);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-1);
 }
@@ -764,12 +1104,76 @@
 .gift-env[data-env="kraft"] { --env-base: oklch(0.85 0.045 75); --env-deep: oklch(0.78 0.055 72); }
 .gift-env[data-env="sky"]   { --env-base: oklch(0.90 0.04 230); --env-deep: oklch(0.83 0.05 235); }
 
+/* Airmail stock. The barber stripe is a border-box background layer sitting
+   behind a padding-box paper layer — one declaration draws a correctly
+   mitred frame on all four edges, with no extra element to animate. Setting
+   --env-band is what switches a design into "framed" mode; the shared
+   surface rules below read it and stay inert (0px) for the plain stocks. */
+.gift-env[data-env="airmail"] {
+  --env-base: oklch(0.955 0.010 85);
+  --env-deep: oklch(0.905 0.016 82);
+  --env-band: 7px;
+  --env-stripe: repeating-linear-gradient(
+    45deg,
+    var(--kd-air-red)  0    7px,
+    var(--env-base)    7px  14px,
+    var(--kd-air-blue) 14px 21px,
+    var(--env-base)    21px 28px
+  );
+}
+
+.gift-env[data-env="airmail-bold"] {
+  --env-base: oklch(0.985 0.003 250);
+  --env-deep: oklch(0.935 0.006 250);
+  --env-band: 13px;
+  --env-stripe: repeating-linear-gradient(
+    45deg,
+    var(--kd-air-red)  0    13px,
+    var(--env-base)    13px 26px,
+    var(--kd-air-blue) 26px 39px,
+    var(--env-base)    39px 52px
+  );
+}
+
 .gift-env-wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
 }
+
+/* Swipe affordance — only drawn once the flap is open, because that is the
+   only moment the gesture does anything. */
+.gift-env__swipe {
+  display: block;
+  color: var(--gift-accent);
+  opacity: 0.75;
+  animation: giftSwipeBob 1.6s ease-in-out infinite;
+}
+
+@keyframes giftSwipeBob {
+  0%, 100% { transform: translateY(4px); opacity: 0.55; }
+  50%      { transform: translateY(-6px); opacity: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-env__swipe { animation: none; transform: none; opacity: 0.8; }
+}
+
+/* floating decor around the envelope — parallax layers during the open */
+.gift-env__decor {
+  position: absolute;
+  z-index: 0;
+  color: var(--gift-accent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.gift-env__decor--a { top: 34px;  left: -34px; }
+.gift-env__decor--b { top: 64px;  right: -30px; opacity: 0.35; }
+.gift-env__decor--c { bottom: 70px; left: -18px; opacity: 0.3; }
+.gift-env__decor--d { bottom: 96px; right: -40px; }
 
 .gift-env {
   appearance: none;
@@ -778,6 +1182,14 @@
   padding: 90px 10px 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+
+  /* Grain strength lives here: the veil is the stock colour at 87% alpha, so
+     13% of the texture reads through. Raise the percentage to mute it. */
+  --env-veil:      color-mix(in oklch, var(--env-base) 87%, transparent);
+  --env-veil-deep: color-mix(in oklch, var(--env-deep) 87%, transparent);
+  /* plain stocks opt out of the airmail frame */
+  --env-band: 0px;
+  --env-stripe: none;
 }
 
 .gift-env__bounce {
@@ -795,8 +1207,11 @@
 .gift-env__back {
   position: absolute;
   inset: 0;
-  background: var(--env-deep);
-  border-radius: 10px;
+  background-color: var(--env-deep);
+  background-image: linear-gradient(var(--env-veil-deep), var(--env-veil-deep)), var(--kd-tex-crumple);
+  background-size: auto, 300px;
+  background-position: center, 70% 20%;
+  border-radius: 8px;
 }
 
 .gift-env__letter {
@@ -820,20 +1235,67 @@
   position: absolute;
   inset: 0;
   z-index: 3;
-  background: var(--env-base);
-  border-radius: 10px;
+  background-color: var(--env-base);
+  background-image:
+    linear-gradient(var(--env-veil), var(--env-veil)),
+    var(--kd-tex-crumple),
+    var(--env-stripe);
+  background-clip: padding-box, padding-box, border-box;
+  background-size: auto, 320px, auto;
+  background-position: center, 18% 62%, center;
+  /* no top band: the flap already draws the top edge, and the front's notch
+     apex (46%) sits 4% above the flap's tip, so a top border here reads as a
+     step where the two stripe runs meet */
+  border: var(--env-band) solid transparent;
+  border-top-width: 0;
+  border-radius: 8px;
   clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 9%;
   box-shadow: inset 0 -1px 0 oklch(0.22 0.015 60 / 0.06);
 }
 
-.gift-env__to {
-  font-family: var(--font-hand);
-  font-size: 22px;
+/* faint empty address rules — replaces the receiver name */
+.gift-env__lines {
+  position: absolute;
+  left: 9%;
+  bottom: 14%;
+  width: 46%;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.gift-env__lines span {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gift-ink);
+  opacity: 0.16;
+}
+
+.gift-env__lines span:nth-child(2) { width: 82%; }
+.gift-env__lines span:nth-child(3) { width: 58%; }
+
+/* postage-stamp sticker, top-right of the front */
+.gift-env__stampsticker {
+  position: absolute;
+  top: 42%;
+  right: 5%;
+  z-index: 4;
+  transform: rotate(3deg);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px oklch(0.22 0.015 60 / 0.2));
+}
+
+/* wavy postmark cancellation lines overlapping the stamp */
+.gift-env__postmark {
+  position: absolute;
+  top: 38%;
+  right: 22%;
+  z-index: 5;
   color: var(--gift-ink);
+  opacity: 0.32;
+  pointer-events: none;
 }
 
 .gift-env__flap {
@@ -843,8 +1305,19 @@
   top: 0;
   height: 50%;
   z-index: 4;
-  background: var(--env-deep);
-  border-radius: 10px 10px 0 0;
+  background-color: var(--env-deep);
+  background-image:
+    linear-gradient(var(--env-veil-deep), var(--env-veil-deep)),
+    var(--kd-tex-crumple),
+    var(--env-stripe);
+  background-clip: padding-box, padding-box, border-box;
+  background-size: auto, 300px, auto;
+  background-position: center, 44% 8%, center;
+  /* top edge only — the flap's diagonals are interior folds, and a full
+     border would paint stripe colour into the clipped triangle tip */
+  border: var(--env-band) solid transparent;
+  border-width: var(--env-band) 0 0;
+  border-radius: 8px 8px 0 0;
   clip-path: polygon(0 0, 100% 0, 50% 100%);
   transform-origin: top center;
   backface-visibility: visible;
@@ -890,6 +1363,15 @@
   color: var(--gift-ink-2);
 }
 
+/* ── Kaado stamp stickers (2 designs) ───────────────────────────────── */
+
+.kd-stampsticker {
+  display: inline-block;
+  background: var(--kd-stamp-bg, var(--color-kd-cream));
+}
+
+.kd-stampsticker svg { display: block; }
+
 /* ── Kaado letter cover ─────────────────────────────────────────────── */
 
 .gift-cover {
@@ -907,7 +1389,7 @@
   position: absolute;
   inset: 12px;
   border: 1.5px solid var(--gift-accent);
-  border-radius: 8px;
+  border-radius: 4px;
   opacity: 0.75;
   pointer-events: none;
 }
@@ -917,7 +1399,7 @@
   position: absolute;
   inset: 5px;
   border: 1px dashed var(--gift-accent);
-  border-radius: 5px;
+  border-radius: 3px;
   opacity: 0.5;
 }
 
@@ -982,7 +1464,7 @@
   aspect-ratio: 3 / 4;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   overflow: hidden;
   cursor: pointer;
   box-shadow: var(--shadow-3);
@@ -1002,56 +1484,170 @@
   perspective: 1400px;
 }
 
+/* Hallmark · component: letter-spread · theme: design.md (Kaado collage) · P4 H4 E4 S4 R5 V4
+   Desktop spread: ONE continuous folded sheet — photos + vinyl on the left
+   page, message on the right, joined at a center crease like an open brochure. */
 @container (min-width: 560px) {
   .gift-spread:has(.gift-sheet--photos) {
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    position: relative;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
-    gap: 4px;
+    gap: 0;
+    background: var(--gift-card);
+    border: 1px solid oklch(0.22 0.015 60 / 0.14);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-3);
+    overflow: hidden;
   }
 
-  /* Bound like a book: squared spine-facing corners + a fold shadow at the gutter. */
+  /* the pages are part of the same paper — no card chrome of their own */
+  .gift-spread:has(.gift-sheet--photos) .gift-sheet {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* center fold: a soft crease running down the spine; --fold-o lets GSAP
+     deepen it as the book opens */
+  .gift-spread:has(.gift-sheet--photos)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 76px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      to right,
+      transparent,
+      oklch(0.22 0.015 60 / 0.06) 38%,
+      oklch(0.22 0.015 60 / 0.2) 50%,
+      oklch(0.22 0.015 60 / 0.06) 62%,
+      transparent
+    );
+    opacity: var(--fold-o, 1);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* each page shades gently toward the spine, like paper curving into the fold */
   .gift-spread:has(.gift-sheet--photos) .gift-sheet--photos {
-    border-radius: var(--radius-lg) 4px 4px var(--radius-lg);
-    box-shadow: var(--shadow-2), inset -16px 0 20px -18px oklch(0.22 0.015 60 / 0.35);
+    background-image: linear-gradient(to right, transparent 78%, oklch(0.22 0.015 60 / 0.045));
   }
 
-  .gift-spread:has(.gift-sheet--photos) .gift-sheet--text {
-    border-radius: 4px var(--radius-lg) var(--radius-lg) 4px;
-    box-shadow: var(--shadow-2), inset 16px 0 20px -18px oklch(0.22 0.015 60 / 0.35);
+  .gift-spread:has(.gift-sheet--photos) .gift-sheet--text:not(.gift-sheet--vintage):not(.gift-sheet--ruled) {
+    background-image: linear-gradient(to left, transparent 78%, oklch(0.22 0.015 60 / 0.045));
   }
+
+  .gift-vinyl-strip { display: none; }
+  .gift-scatter { display: none; }
+
+  /* No photos and no song: the photos sheet never mounts, so the two-column
+     split above never engages either — cap the lone text sheet back to a
+     comfortable reading width instead of letting it stretch edge-to-edge. */
+  .gift-spread:not(:has(.gift-sheet--photos)) {
+    min-width: 25vw;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
+/* Mobile: photos sheet hidden — photos scatter through the message instead,
+   vinyl moves to a strip at the top */
+@container (max-width: 559.98px) {
+  .gift-sheet--photos { display: none; }
 }
 
 .gift-sheet {
   position: relative;
   background-color: var(--gift-card);
   border-radius: var(--radius-lg);
+  background-color: var(--gift-card);
+  background-image: linear-gradient(var(--kd-sheet-veil), var(--kd-sheet-veil)), var(--kd-tex-weave);
+  background-size: auto, 240px;
+  background-position: center, 30% 10%;
+  border: 1px solid oklch(0.22 0.015 60 / 0.08);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-2);
 }
 
 .gift-sheet--photos {
-  display: flex;
-  padding: 10px;
+  padding: 18px 16px;
   min-height: 260px;
 }
 
 .gift-sheet--text {
-  padding: 32px 26px;
+  padding: 30px 26px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.gift-sheet__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  width: 100%;
+/* paper variants — must come after .gift-sheet so they win the cascade
+   (the base rule's `background:` shorthand would otherwise reset them) */
+.gift-sheet--text.gift-sheet--ruled {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 31px,
+      var(--gift-soft) 31px,
+      var(--gift-soft) 32px
+    ),
+    linear-gradient(var(--kd-sheet-veil), var(--kd-sheet-veil)),
+    var(--kd-tex-weave);
+  background-size: auto, auto, 240px;
+  background-position: center, center, 30% 10%;
+  background-origin: content-box;
 }
 
-/* 1 photo: single full frame. 2 photos: stacked top/bottom.
-   3 photos: 2 on top, last spans the bottom row. 4+ photos: 2-up rows. */
-.gift-sheet__grid[data-count='1'],
-.gift-sheet__grid[data-count='2'] {
+.gift-sheet--ruled .gift-letter__text {
+  line-height: 32px;
+}
+
+/* vintage takes the crumple stock — aged paper wants creases, not weave */
+.gift-sheet--text.gift-sheet--vintage {
+  --kd-vintage-paper: oklch(0.93 0.03 85);
+  background-color: var(--kd-vintage-paper);
+  background-image:
+    linear-gradient(
+      color-mix(in oklch, var(--kd-vintage-paper) 86%, transparent),
+      color-mix(in oklch, var(--kd-vintage-paper) 86%, transparent)
+    ),
+    var(--kd-tex-crumple);
+  background-size: auto, 260px;
+  background-position: center, 60% 45%;
+  border: 1px solid oklch(0.85 0.05 80);
+}
+
+/* clear scattered photo floats */
+.gift-sheet--text::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.gift-sheet__kicker {
+  margin-bottom: 10px;
+  color: var(--gift-accent);
+}
+
+/* photos + vinyl column (desktop left sheet) */
+.gift-media {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.gift-media__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.gift-media__grid[data-count='1'],
+.gift-media__grid[data-count='2'] {
   grid-template-columns: 1fr;
 }
 
@@ -1063,10 +1659,34 @@
   grid-column: 1 / -1;
 }
 
+.gift-media__vinyl {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+}
+
+.gift-media__song {
+  font-size: 12px;
+  color: var(--gift-ink-2);
+  text-align: center;
+}
+
+.gift-media__song strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--gift-ink);
+}
+
+/* stamp-style photo frame: white mat + perforated edge, slight scatter rotation */
 .gift-frame {
   margin: 0;
-  overflow: hidden;
-  border-radius: var(--radius-sm);
+  background: oklch(0.99 0.005 85);
+  box-shadow: var(--shadow-2);
 }
 
 .gift-frame img {
@@ -1076,6 +1696,45 @@
   min-height: 110px;
   object-fit: cover;
 }
+
+.gift-media__grid .gift-frame:nth-child(odd)  { transform: rotate(-2deg); }
+.gift-media__grid .gift-frame:nth-child(even) { transform: rotate(1.6deg); }
+
+/* mobile vinyl strip above the message */
+.gift-vinyl-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--gift-card);
+  border: 1px solid oklch(0.22 0.015 60 / 0.08);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.gift-vinyl-strip__meta { min-width: 0; }
+.gift-vinyl-strip__title { font-family: var(--font-display); font-size: 15px; }
+.gift-vinyl-strip__artist { margin-top: 1px; font-size: 12px; color: var(--gift-ink-2); }
+
+/* mobile scattered polaroids floated through the message text */
+.gift-scatter {
+  width: 52%;
+  max-width: 190px;
+  padding: 6px 6px 20px;
+  background: oklch(0.99 0.005 85);
+  box-shadow: var(--shadow-2);
+}
+
+.gift-scatter img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.gift-scatter--l { float: left; margin: 6px 14px 8px 0; transform: rotate(-3deg); }
+.gift-scatter--r { float: right; margin: 6px 0 8px 14px; transform: rotate(2.5deg); }
 
 .gift-letter__caret {
   display: inline-block;
@@ -1091,12 +1750,14 @@
   50% { opacity: 0; }
 }
 
+/* stamp sits above the name, the way a seal is pressed before you sign under it */
 .gift-letter__sign {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 14px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
   margin-top: 16px;
+  clear: both;
 }
 
 .gift-letter__sign .gift-letter__signed { margin-top: 0; }
@@ -1109,16 +1770,30 @@
   mix-blend-mode: multiply;
 }
 
+/* An uploaded signature is usually shot on white paper — multiply drops the
+   paper out so it reads as ink on the letter rather than a pasted rectangle. */
+.gift-stamp--custom {
+  width: auto;
+  max-width: 132px;
+  max-height: 84px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+}
+
 .gift-sticker {
   position: absolute;
   z-index: 2;
   color: var(--gift-accent);
+  /* The four zero-blur offsets are the die-cut sticker edge, not lighting.
+     Depth is a single flat offset silhouette at 8% — no blur, per the motif
+     spec; a blurred shadow was the one bit of lighting left in here. */
   filter:
     drop-shadow(1px 0 0 var(--gift-card))
     drop-shadow(-1px 0 0 var(--gift-card))
     drop-shadow(0 1px 0 var(--gift-card))
     drop-shadow(0 -1px 0 var(--gift-card))
-    drop-shadow(0 2px 2px oklch(0.22 0.015 60 / 0.18));
+    drop-shadow(1.5px 2px 0 oklch(0.22 0.015 60 / 0.08));
   pointer-events: none;
 }
 
@@ -1154,7 +1829,7 @@
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  background: oklch(0.25 0.015 60);
+  background: var(--color-kd-forest-2);
   border-radius: var(--radius-md);
   padding: 30px 24px 26px;
   box-shadow: var(--shadow-3);
@@ -1558,4 +2233,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pb-road::after { animation: none; }
+}
+/* ── Kaado editor (emoji picker popover) ────────────────────────────── */
+
+.kd-emoji-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  box-shadow: var(--shadow-3);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.kd-emoji-pop emoji-picker {
+  width: min(320px, 86vw);
+  height: 340px;
 }
