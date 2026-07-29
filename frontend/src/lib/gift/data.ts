@@ -46,10 +46,10 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
       { key: 'no_label', label: 'Tombol nggak', placeholder: 'Nggak', type: 'text', maxLength: 20 },
       {
         key: 'no_lines',
-        label: 'Rayuan tiap dia mengejar tombol nggak',
+        label: 'Rayuan tiap dia coba pencet tombol nggak',
         type: 'textarea',
         maxLength: 600,
-        help: 'Satu baris untuk satu percobaan, lalu berulang dari awal. Tombol nggak selalu menghindar — tidak akan pernah bisa ditekan.',
+        help: 'Satu baris untuk satu percobaan, lalu berulang dari awal. Tombol nggak makin kecil tiap dicoba — tidak akan pernah bisa ditekan.',
       },
       { key: 'success_text', label: 'Teks perayaan', placeholder: 'AKU TAHU KAMU BAKAL BILANG IYA', type: 'text', maxLength: 80 },
       {
@@ -217,8 +217,8 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
         'Yakin? Aku udah siapin playlist buat kita berdua…',
         'Hatiku retak pelan-pelan. Kedengeran sampai sana, kan?',
         'Bantalku saja setuju kamu harusnya bilang iya.',
-        'Oke, aku mulai panik. Tombolnya lari terus tuh.',
-        'Percuma dikejar. Cuma ada satu tombol yang bisa ditekan.',
+        'Oke, aku mulai panik. Tombolnya makin kecil aja.',
+        'Percuma dicoba. Cuma ada satu tombol yang bisa ditekan.',
       ].join('\n'),
       success_text: 'AKU TAHU KAMU BAKAL BILANG IYA',
       letter:
