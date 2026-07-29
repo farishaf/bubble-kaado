@@ -791,6 +791,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   font-family: var(--font-body);
   font-size: 15px;
   font-weight: 500;
@@ -815,15 +816,15 @@
   color: var(--gift-ink-2);
 }
 
-/* dodge mode: snappier movement so the button visibly flees the cursor */
-.gift-btn--dodge {
+/* shrink mode: snappy scale-down so each attempt visibly shrinks the button */
+.gift-btn--shrink {
   transition: transform 150ms ease-out;
-  /* the tap must reach onPointerDown as a dodge, not as a scroll gesture */
+  /* the tap must reach onPointerDown as a shrink, not as a scroll gesture */
   touch-action: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gift-btn--dodge { transition-duration: 1ms; }
+  .gift-btn--shrink { transition-duration: 1ms; }
 }
 
 .gift-btn--small {
@@ -1482,6 +1483,15 @@
 
   .gift-vinyl-strip { display: none; }
   .gift-scatter { display: none; }
+
+  /* No photos and no song: the photos sheet never mounts, so the two-column
+     split above never engages either — cap the lone text sheet back to a
+     comfortable reading width instead of letting it stretch edge-to-edge. */
+  .gift-spread:not(:has(.gift-sheet--photos)) {
+    min-width: 25vw;
+    max-width: 520px;
+    margin-inline: auto;
+  }
 }
 
 /* Mobile: photos sheet hidden — photos scatter through the message instead,
