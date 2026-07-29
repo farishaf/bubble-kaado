@@ -40,8 +40,6 @@ function parseTime(v: string): number | undefined {
   return Number.isFinite(s) && s >= 0 ? s : undefined;
 }
 
-const clampJump = (v: number, limit: number) => Math.max(-limit, Math.min(limit, v));
-
 /* ── Uploaded-MP3 bar ───────────────────────────────────────────────── */
 
 function Mp3Bar({
@@ -131,6 +129,19 @@ function PlusMark() {
   );
 }
 
+/** Mouth curve sours a little more with each failed attempt — smile to pleading frown. */
+const NO_FACE_MOUTHS = ['M4 9 Q7 11 10 9', 'M4 9.5 H10', 'M4 10 Q7 8 10 10', 'M4 10.5 Q7 7 10 10.5'];
+
+function NoFace({ stage }: { stage: 0 | 1 | 2 | 3 }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+      <circle cx="3.5" cy="5.5" r="1" fill="currentColor" />
+      <circle cx="10.5" cy="5.5" r="1" fill="currentColor" />
+      <path d={NO_FACE_MOUTHS[stage]} stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
 /* ── Intro parcel ───────────────────────────────────────────────────── */
 
 function Parcel({ opening, label, onOpen }: { opening: boolean; label: string; onOpen: () => void }) {
@@ -177,7 +188,6 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const [stage, setStage] = useState<Stage>('intro');
   const [opening, setOpening] = useState(false);
   const [noCount, setNoCount] = useState(0);
-  const [noJump, setNoJump] = useState({ x: 0, y: 0 });
   const [muted, setMuted] = useState(false);
 
   const recipient = (data.recipient_name || '').trim();
@@ -237,21 +247,12 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
     setTimeout(() => setStage('ask'), 620);
   };
 
-  // The button flees along the vector away from the pointer, so it can never be
-  // cornered — a random jump could land back under the cursor. Jitter keeps it
-  // from settling into a predictable orbit.
-  const onNo = (e: { clientX: number; clientY: number; currentTarget: Element }) => {
-    const box = e.currentTarget.getBoundingClientRect();
-    const dx = box.left + box.width / 2 - e.clientX;
-    const dy = box.top + box.height / 2 - e.clientY;
-    const len = Math.hypot(dx, dy) || 1;
-    const jitter = () => (Math.random() - 0.5) * 40;
+  // The button shrinks in place rather than dodging — still intercepted on
+  // pointerenter/pointerdown (before a real click lands), so "never pressable"
+  // still holds even though it no longer needs to outrun the cursor.
+  const onNo = () => {
     giftSound.no(noCount + 1);
     setNoCount((c) => c + 1);
-    setNoJump((prev) => ({
-      x: clampJump(prev.x + (dx / len) * 90 + jitter(), 130),
-      y: clampJump(prev.y + (dy / len) * 60 + jitter(), 70),
-    }));
   };
 
   const onYes = () => {
@@ -267,6 +268,11 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const photo = photos[0] || '';
   // Capped so a stubborn recipient can't grow the button out of the panel.
   const yesScale = Math.min(1 + noCount * 0.09, 1.6);
+  const noScale = 1 - noCount * 0.13;
+  const noFaceStage = Math.min(noCount, 3) as 0 | 1 | 2 | 3;
+  // Once it's shrunk past a fair target size, it's gone — matches the promise
+  // in the template copy: "sampai tersisa satu jawaban" (until one answer remains).
+  const noButtonVisible = noScale > 0.18;
 
   return (
     <div ref={rootRef} className="gift-root" data-gift-theme={theme}>
@@ -331,22 +337,25 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
                 >
                   {data.yes_label || t('yesFallback')}
                 </button>
-                <button
-                  type="button"
-                  aria-disabled="true"
-                  className="gift-btn gift-btn--no gift-btn--dodge"
-                  style={{ transform: `translate(${noJump.x}px, ${noJump.y}px)` }}
-                  onPointerEnter={onNo}
-                  onPointerDown={(e) => {
-                    // Touch has no hover, so the tap-down itself triggers the
-                    // dodge — the reaction still fires, the press never lands.
-                    e.preventDefault();
-                    onNo(e);
-                  }}
-                  onClick={(e) => e.preventDefault()}
-                >
-                  {data.no_label || t('noFallback')}
-                </button>
+                {noButtonVisible && (
+                  <button
+                    type="button"
+                    aria-disabled="true"
+                    className="gift-btn gift-btn--no gift-btn--shrink"
+                    style={{ transform: `scale(${noScale})` }}
+                    onPointerEnter={onNo}
+                    onPointerDown={(e) => {
+                      // Touch has no hover, so the tap-down itself triggers the
+                      // shrink — the reaction still fires, the press never lands.
+                      e.preventDefault();
+                      onNo();
+                    }}
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    <NoFace stage={noFaceStage} />
+                    {data.no_label || t('noFallback')}
+                  </button>
+                )}
               </div>
             </div>
           </div>
