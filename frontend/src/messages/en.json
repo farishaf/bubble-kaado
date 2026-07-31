@@ -177,6 +177,10 @@
     "uploadNotImage": "Only image files are allowed.",
     "uploadTooBig": "Each photo must be 8 MB or less.",
     "uploadFailed": "Upload failed. Please try again.",
+    "addAudio": "Upload MP3",
+    "removeAudio": "Remove song",
+    "uploadNotAudio": "Only audio files (MP3, M4A, WAV) are allowed.",
+    "uploadAudioTooBig": "Songs can be at most 12 MB.",
     "cropPhoto": "Crop photo",
     "cropTitle": "Crop photo",
     "cropApply": "Apply",
@@ -329,6 +333,18 @@
       "linkTaken": "That link is taken. Try another.",
       "linkInvalid": "3–62 characters: lowercase letters, numbers, hyphens.",
       "linkHelp": "Change the tail to something memorable. The old link stops working."
+    },
+    "puzzlePlayer": {
+      "wordmark": "Dekadoe",
+      "loading": "Your gift is on the way",
+      "boxHint": "Tap the picture on the tag",
+      "puzzleTitle": "Solve it to open it",
+      "puzzleHint": "Drag each piece into its square",
+      "puzzleProgress": "{n} of {total} pieces placed",
+      "revealTitle": "THE GIFT IS OPEN",
+      "openLetter": "Read the letter",
+      "restart": "Start over",
+      "pieceLabel": "Piece {n} — tap to place it"
     },
     "player": {
       "forYou": "For {name}",

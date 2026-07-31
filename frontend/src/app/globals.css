@@ -906,15 +906,37 @@
   text-align: right;
 }
 
+.gift-sheet--ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    color-mix(in oklch, var(--gift-ink) 22%, transparent) 31px,
+    color-mix(in oklch, var(--gift-ink) 22%, transparent) 32px
+  );
+  background-origin: content-box;
+}
+
+.gift-sheet--ruled .gift-letter__text {
+  line-height: 32px;
+}
+
+.gift-sheet--vintage {
+  background: oklch(0.93 0.03 85);
+  border: 1px solid oklch(0.85 0.05 80);
+}
+
 .gift-song {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.gift-embed {
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-md);
+/* the YouTube player keeps playing audio off-screen — only the vinyl below is visible */
+.gift-yt-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
   overflow: hidden;
   box-shadow: var(--shadow-2);
 }
@@ -955,6 +977,7 @@
   width: 42px;
   height: 42px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   border: 0;
@@ -962,11 +985,20 @@
   background: var(--gift-accent);
   color: var(--gift-accent-ink);
   cursor: pointer;
+  gap: 10px;
+  background: var(--gift-card);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-2);
 }
 
 .gift-vinyl svg {
   display: block;
   animation: giftSpin 5s linear infinite;
+}
+
+.gift-vinyl.is-paused svg {
+  animation-play-state: paused;
 }
 
 @keyframes giftSpin {
@@ -977,6 +1009,32 @@
 .gift-vinyl__groove { fill: none; stroke: oklch(0.35 0.01 60); stroke-width: 1; }
 .gift-vinyl__label { fill: var(--gift-accent); }
 .gift-vinyl__hole { fill: var(--gift-card); }
+
+.gift-vinyl-toggle {
+  position: relative;
+  display: inline-flex;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.gift-vinyl-toggle__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gift-card);
+}
+
+.gift-vinyl-title-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--gift-ink-2);
+  text-align: center;
+  max-width: 240px;
+}
 
 .gift-countdown {
   align-self: center;
@@ -1503,6 +1561,8 @@
 .gift-sheet {
   position: relative;
   background-color: var(--gift-card);
+  border-radius: var(--radius-lg);
+  background-color: var(--gift-card);
   background-image: linear-gradient(var(--kd-sheet-veil), var(--kd-sheet-veil)), var(--kd-tex-weave);
   background-size: auto, 240px;
   background-position: center, 30% 10%;
@@ -1591,7 +1651,11 @@
   grid-template-columns: 1fr;
 }
 
-.gift-media__grid[data-count='3'] .gift-frame:last-child {
+.gift-sheet__grid[data-count='2'] {
+  gap: 16px;
+}
+
+.gift-sheet__grid[data-count='3'] .gift-frame:last-child {
   grid-column: 1 / -1;
 }
 
@@ -1777,40 +1841,6 @@
   animation: giftSpin 5s linear infinite;
 }
 
-.gift-lback__song {
-  font-family: var(--font-display);
-  font-size: 16px;
-  color: oklch(0.92 0.012 80);
-}
-
-.gift-lback__song span {
-  font-family: var(--font-body);
-  font-size: 13px;
-  opacity: 0.7;
-}
-
-.gift-lyrics {
-  width: 100%;
-  max-height: 220px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 6px 4px;
-  text-align: left;
-  scrollbar-width: thin;
-}
-
-.gift-lyrics__line {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 1.4;
-  color: oklch(0.93 0.015 80);
-  opacity: 0.35;
-  transform-origin: left center;
-}
-
 .gift-lface--back .gift-btn--ghost {
   border-color: oklch(0.42 0.012 60);
   color: oklch(0.85 0.012 80);
@@ -1821,6 +1851,389 @@
   border-color: var(--gift-accent);
 }
 
+
+/* ── Kaado gift · puzzle-box template ───────────────────────────────
+ * Hallmark · macrostructure: Delivery → Puzzle → Reveal (in-product gift flow)
+ * theme: shared (Kaado gift tokens) · enrichment: Tier-A hand-built SVG
+ * (truck, box, smoke, clippings) + GSAP timelines & Draggable
+ */
+
+/* Stage 1 · delivery */
+
+.pb-loader {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.pb-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -0.01em;
+  color: var(--gift-ink);
+}
+
+.pb-road {
+  position: relative;
+  margin: 28px 0 8px;
+  height: 120px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pb-road::after {
+  content: "";
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: 12px;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--gift-soft) 0 22px,
+    transparent 22px 44px
+  );
+  animation: pbRoad 0.6s linear infinite;
+}
+
+@keyframes pbRoad {
+  to { transform: translateX(-44px); }
+}
+
+.pb-truck svg { display: block; }
+.pb-truck__body { fill: var(--gift-accent); }
+.pb-truck__cab { fill: var(--gift-accent); opacity: 0.82; }
+.pb-truck__window { fill: var(--gift-card); }
+.pb-truck__wheel { fill: var(--gift-ink); opacity: 0.75; }
+.pb-truck__gift { fill: var(--gift-soft); }
+.pb-truck__ribbon { fill: var(--gift-card); }
+.pb-truck__bow {
+  fill: none;
+  stroke: var(--gift-card);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+}
+
+.pb-truck__parcel { transform-origin: 43px 46px; }
+
+.pb-loader__caption {
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gift-ink-2);
+}
+
+/* Stage 2 · the box falls */
+
+.pb-boxwrap {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.pb-scene {
+  position: relative;
+  margin: 18px auto 6px;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pb-box svg { display: block; }
+
+.pb-smoke {
+  position: absolute;
+  bottom: 26px;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-pill);
+  background: var(--gift-soft);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.pb-smoke--a { left: 14%; }
+.pb-smoke--b { left: 50%; margin-left: -23px; }
+.pb-smoke--c { right: 14%; }
+
+.pb-tag {
+  position: absolute;
+  right: -6%;
+  bottom: 12%;
+  width: 84px;
+  padding: 8px 8px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--gift-card);
+  border: 1px solid var(--gift-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transform-origin: 50% 0;
+}
+
+.pb-tag::before {
+  content: "";
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  width: 2px;
+  height: 22px;
+  background: var(--gift-soft);
+}
+
+.pb-tag__hole {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gift-soft);
+}
+
+.pb-tag__art {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background-color: var(--gift-soft);
+  background-size: cover;
+  background-position: center;
+}
+
+.pb-tag__glyph { fill: var(--gift-accent); }
+
+.pb-hint {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--gift-ink-2);
+}
+
+/* Stage 3 · the puzzle */
+
+.pb-puzzle {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.puz {
+  position: relative;
+  margin-top: 16px;
+  touch-action: none;
+}
+
+.puz-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  padding: 8px;
+  background: var(--gift-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.puz-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background-color: var(--gift-soft);
+}
+
+.puz-slot {
+  opacity: 0.45;
+  border: 1px dashed var(--gift-accent);
+  background-color: transparent;
+}
+
+.puz-num {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gift-accent);
+}
+
+.puz-cell--fixed .puz-num { color: var(--gift-ink-2); }
+
+/* tray is one unscaled piece tall: pieces render at scale 0.55 around their
+   own centre, so a shorter tray would let them spill over the hint below */
+.puz-tray {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  margin-top: 4px;
+}
+
+.puz-piece {
+  position: absolute;
+  top: 0;
+  /* matches a board cell exactly: board padding (16px) + two 4px gaps */
+  width: calc((100% - 24px) / 3);
+  aspect-ratio: 1;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--gift-card);
+  background-size: 300% 200%;
+  box-shadow: var(--shadow-2);
+  cursor: grab;
+  touch-action: none;
+}
+
+.puz-piece:focus-visible {
+  outline: 3px solid var(--gift-accent);
+  outline-offset: 3px;
+}
+
+.puz-piece:active { cursor: grabbing; }
+
+.puz-piece.is-placed {
+  box-shadow: none;
+  cursor: default;
+}
+
+.puz-hint {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--gift-ink-2);
+}
+
+/* Stage 4 · the box opens */
+
+.pb-open {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.pb-open__scene {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.pb-open__box {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 150px;
+  height: 74px;
+  margin-left: -75px;
+}
+
+.pb-open__base,
+.pb-open__lid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: var(--radius-md);
+  background: var(--gift-accent);
+}
+
+.pb-open__base {
+  bottom: 0;
+  height: 62px;
+  box-shadow: var(--shadow-2);
+}
+
+.pb-open__lid {
+  top: -14px;
+  height: 20px;
+  background: var(--gift-accent);
+  filter: brightness(1.08);
+}
+
+.pb-clip {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  margin-left: -21px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pb-clip__paper { fill: var(--gift-card); stroke: var(--gift-soft); }
+.pb-clip__line { stroke: var(--gift-ink-2); stroke-width: 1.4; opacity: 0.5; }
+
+.pb-media {
+  position: absolute;
+  bottom: 54px;
+  width: min(200px, 70%);
+  z-index: 2;
+}
+
+.pb-media img {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+}
+
+.pb-open__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pb-endcap {
+  display: flex;
+  justify-content: center;
+}
+
+/* The puzzle-box letter reads as a small kept note, not a spread */
+
+.pb-letter-col {
+  max-width: 300px;
+  /* min() so a very tall, narrow window can't push the letter past the column */
+  min-width: min(25vh, 100%);
+}
+
+.pb-letter-col .gift-lface--cover { max-width: 260px; }
+.pb-letter-col .gift-sheet--photos { min-height: 180px; }
+.pb-letter-col .gift-sheet--text { padding: 24px 20px; }
+
+@media (min-width: 768px) {
+  .pb-letter-col { max-width: 420px; }
+}
+
+@media (min-width: 900px) {
+  .pb-letter-col { max-width: 520px; }
+}
+
+/* Crumpled letter paper (lecek) */
+
+.gift-sheet--crumple {
+  background-color: oklch(0.95 0.012 85);
+  background-image:
+    linear-gradient(122deg, oklch(0.22 0.015 60 / 0.05) 0 42%, transparent 42.4% 100%),
+    linear-gradient(28deg, oklch(0.22 0.015 60 / 0.04) 0 30%, transparent 30.4% 100%),
+    linear-gradient(196deg, oklch(0.22 0.015 60 / 0.05) 0 26%, transparent 26.4% 100%),
+    linear-gradient(304deg, oklch(0.22 0.015 60 / 0.035) 0 55%, transparent 55.4% 100%);
+  box-shadow: inset 0 0 26px oklch(0.22 0.015 60 / 0.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-road::after { animation: none; }
+}
 /* ── Kaado editor (emoji picker popover) ────────────────────────────── */
 
 .kd-emoji-pop {

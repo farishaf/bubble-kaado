@@ -143,7 +143,7 @@ export function Editor({ template, locale }: Props) {
   const onSave = async () => {
     setError(null);
     if (!user) {
-      openAuth('signUp');
+      openAuth('signIn');
       return;
     }
     setSaving(true);

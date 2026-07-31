@@ -8,7 +8,8 @@ import { Blossom, Crane, RegMark } from './motifs';
 
 gsap.registerPlugin(useGSAP);
 
-export type GiftLetterStyle = 'plain' | 'ruled' | 'vintage';
+export type GiftLetterStyle = 'plain' | 'ruled' | 'vintage' | 'crumple';
+const LETTER_STYLES: GiftLetterStyle[] = ['plain', 'ruled', 'vintage', 'crumple'];
 type Face = 'cover' | 'main' | 'back';
 
 /* ── Front cover designs ─────────────────────────────────────────── */
@@ -201,10 +202,7 @@ export function Vinyl({ size, photo, clipId }: { size: number; photo?: string; c
 /* ── Letter ──────────────────────────────────────────────────────── */
 
 type Song = {
-  title?: string;
-  artist?: string;
   photo?: string;
-  lyrics: string[];
   playUrl?: string;
   playLabel?: string;
 };
@@ -243,10 +241,11 @@ export function GiftLetter({
   labels,
   onClose,
 }: Props) {
-  const variant: GiftLetterStyle = style === 'ruled' || style === 'vintage' ? style : 'plain';
+  const variant: GiftLetterStyle = LETTER_STYLES.includes(style as GiftLetterStyle)
+    ? (style as GiftLetterStyle)
+    : 'plain';
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const lyricsRef = useRef<HTMLDivElement>(null);
   const paraRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const flipping = useRef(false);
   const mainRevealed = useRef(false);
@@ -261,7 +260,7 @@ export function GiftLetter({
   const scatterAt = pics.map((_, i) =>
     Math.min(Math.max(0, paras.length - 1), Math.floor((i * paras.length) / Math.max(1, pics.length)))
   );
-  const hasSong = Boolean(song && (song.title || song.artist || song.lyrics.length > 0));
+  const hasSong = Boolean(song);
 
   const { contextSafe } = useGSAP(
     () => {
@@ -347,20 +346,6 @@ export function GiftLetter({
         return () => window.removeEventListener('pointermove', onMove);
       }
 
-      if (face === 'back' && lyricsRef.current && song && song.lyrics.length > 0) {
-        const lines = gsap.utils.toArray<HTMLElement>('.gift-lyrics__line', lyricsRef.current);
-        gsap.set(lines, { opacity: 0.35 });
-        const tl = gsap.timeline({ delay: 0.5 });
-        lines.forEach((line, i) => {
-          tl.to(line, { opacity: 1, scale: 1.03, duration: reduced() ? 0.01 : 0.35, ease: 'power2.out' }, i * 1.4);
-          tl.to(
-            lyricsRef.current,
-            { scrollTop: Math.max(0, line.offsetTop - 80), duration: reduced() ? 0.01 : 0.4, ease: 'power2.inOut' },
-            i * 1.4
-          );
-          if (i > 0) tl.to(lines[i - 1], { opacity: 0.5, scale: 1, duration: 0.35 }, i * 1.4);
-        });
-      }
     },
     { scope: rootRef, dependencies: [face, typed] }
   );
@@ -416,10 +401,6 @@ export function GiftLetter({
             {hasSong && (
               <div className="gift-vinyl-strip" data-para="7">
                 <Vinyl size={56} photo={song?.photo} clipId="gift-vinyl-label-strip" />
-                <div className="gift-vinyl-strip__meta">
-                  {song?.title && <p className="gift-vinyl-strip__title">{song.title}</p>}
-                  {song?.artist && <p className="gift-vinyl-strip__artist">{song.artist}</p>}
-                </div>
               </div>
             )}
             <div className="gift-spread" data-para="4">
@@ -439,12 +420,6 @@ export function GiftLetter({
                     {hasSong && (
                       <div className="gift-media__vinyl" data-para="9">
                         <Vinyl size={110} photo={song?.photo} clipId="gift-vinyl-label-media" />
-                        {(song?.title || song?.artist) && (
-                          <p className="gift-media__song">
-                            {song?.title && <strong>{song.title}</strong>}
-                            {song?.artist}
-                          </p>
-                        )}
                       </div>
                     )}
                   </div>
@@ -505,22 +480,6 @@ export function GiftLetter({
             <div className="gift-vinyl--big">
               <Vinyl size={150} photo={song.photo} clipId="gift-vinyl-label-back" />
             </div>
-            {(song.title || song.artist) && (
-              <p className="gift-lback__song">
-                {song.title}
-                {song.title && song.artist ? ' · ' : ''}
-                <span>{song.artist}</span>
-              </p>
-            )}
-            {song.lyrics.length > 0 && (
-              <div ref={lyricsRef} className="gift-lyrics">
-                {song.lyrics.map((line, i) => (
-                  <p key={i} className="gift-lyrics__line">
-                    {line}
-                  </p>
-                ))}
-              </div>
-            )}
             {song.playUrl && (
               <a
                 className="gift-btn gift-btn--small"

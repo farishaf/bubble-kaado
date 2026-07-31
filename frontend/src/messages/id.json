@@ -177,16 +177,10 @@
     "uploadNotImage": "Hanya file gambar yang diperbolehkan.",
     "uploadTooBig": "Ukuran foto maksimal 8 MB.",
     "uploadFailed": "Upload gagal. Coba lagi.",
-    "cropPhoto": "Potong foto",
-    "cropTitle": "Potong foto",
-    "cropApply": "Terapkan",
-    "cropCancel": "Batal",
-    "audioAdd": "Unggah MP3",
-    "audioReady": "Berkas lagu tersimpan",
-    "audioRemove": "Hapus lagunya",
-    "audioNotAudio": "Berkasnya harus MP3 atau M4A.",
-    "audioTooBig": "Berkasnya lebih dari 10 MB. Perkecil dulu.",
-    "audioTooLong": "Lagunya lebih dari 5 menit. Potong dulu."
+    "addAudio": "Unggah MP3",
+    "removeAudio": "Hapus lagu",
+    "uploadNotAudio": "Hanya berkas audio (MP3, M4A, WAV) yang diperbolehkan.",
+    "uploadAudioTooBig": "Ukuran lagu maksimal 12 MB."
   },
   "dashboard": {
     "heading": "Karya saya",

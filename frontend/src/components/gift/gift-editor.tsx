@@ -22,6 +22,11 @@ const SAVED_KEY = (slug: string) => `kaado:saved:${slug}`;
 const randomSlug = (prefix: string) =>
   `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
 
+function countWords(s: string): number {
+  const t = s.trim();
+  return t ? t.split(/\s+/).length : 0;
+}
+
 function stripEmpty(data: GiftData): GiftData {
   const out: GiftData = {};
   for (const [k, v] of Object.entries(data)) {
@@ -656,7 +661,11 @@ function GiftFieldInput({
             id={id}
             ref={(el) => { inputRef.current = el; }}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              if (field.maxWords && countWords(next) > field.maxWords && next.length > value.length) return;
+              onChange(next);
+            }}
             placeholder={field.placeholder}
             maxLength={field.maxLength}
             rows={field.key === 'letter' ? 6 : 4}
