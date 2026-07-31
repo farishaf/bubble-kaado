@@ -112,13 +112,13 @@ export function PhotoUploader({ value, onChange, maxItems = 12, fieldLabel, slot
     }
     const file = new File([blob], 'crop.jpg', { type: 'image/jpeg' });
     const oldUrl = value[idx];
-    const { url } = await uploadImage(file, user.id);
+    const { url } = await uploadAsset(file, user.id);
     const next = [...value];
     next[idx] = url;
     onChange(next);
-    const path = imagePathFromUrl(oldUrl);
+    const path = assetPathFromUrl(oldUrl);
     if (path) {
-      try { await removeImage(path); } catch { /* ignore */ }
+      try { await removeAsset(path); } catch { /* ignore */ }
     }
   };
 

@@ -60,7 +60,6 @@ export const GIFT_TEMPLATES: GiftTemplate[] = [
         maxLength: 400,
         help: 'Dibuka setelah dia menjawab iya. Ditulis dengan huruf tangan. Maksimal 400 karakter — yang pendek justru lebih kena.',
         maxWords: 200,
-        help: 'Dibuka setelah dia menjawab iya. Ditulis dengan huruf tangan.',
       },
       {
         key: 'letter_style',

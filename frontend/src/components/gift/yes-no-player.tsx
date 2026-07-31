@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { GiftPlayerProps } from '@/lib/gift/types';
 import { giftSound } from '@/lib/gift/sound';
 import { burstConfetti } from './confetti';
 import { GiftEnvelope } from './envelope';
-import { GiftLetter, LetterCover, Vinyl } from './letter';
+import { GiftLetter, LetterCover } from './letter';
 import { Mascot } from './mascot';
 import { GiftSongPlayer, youtubeId } from './song';
 import { BlossomScatter } from './motifs';
@@ -24,102 +24,6 @@ function daysUntil(iso: string): number | null {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   return Math.round((target.getTime() - today.getTime()) / 86_400_000);
-}
-
-function youtubeId(url: string): string | null {
-  const m = url.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
-  return m ? m[1] : null;
-}
-
-/** "1:30" → 90, "45" → 45, anything else → undefined */
-function parseTime(v: string): number | undefined {
-  const t = v.trim();
-  if (!t) return undefined;
-  const m = t.match(/^(?:(\d+):)?(\d{1,4})$/);
-  if (!m) return undefined;
-  const s = Number(m[1] ?? 0) * 60 + Number(m[2]);
-  return Number.isFinite(s) && s >= 0 ? s : undefined;
-}
-
-/* ── Uploaded-MP3 bar ───────────────────────────────────────────────── */
-
-function Mp3Bar({
-  src,
-  start,
-  end,
-  title,
-  artist,
-  photo,
-  labels,
-}: {
-  src: string;
-  start?: number;
-  end?: number;
-  title?: string;
-  artist?: string;
-  photo?: string;
-  labels: { play: string; pause: string };
-}) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!el) return;
-    const seekToStart = () => {
-      if (start !== undefined) el.currentTime = start;
-    };
-    // Stop at the trim point rather than running to the end of the file.
-    const onTime = () => {
-      if (end !== undefined && el.currentTime >= end) el.pause();
-    };
-    el.addEventListener('loadedmetadata', seekToStart);
-    el.addEventListener('timeupdate', onTime);
-    // ponytail: autoplay is best-effort — a browser with no prior gesture
-    // vetoes it and the recipient just taps play.
-    void el.play().catch(() => {});
-    return () => {
-      el.removeEventListener('loadedmetadata', seekToStart);
-      el.removeEventListener('timeupdate', onTime);
-    };
-  }, [src, start, end]);
-
-  const toggle = () => {
-    const el = audioRef.current;
-    if (!el) return;
-    if (playing) {
-      el.pause();
-    } else {
-      if (start !== undefined && (end === undefined || el.currentTime >= end)) el.currentTime = start;
-      void el.play().catch(() => {});
-    }
-  };
-
-  return (
-    <div className="gift-audiobar" data-playing={playing}>
-      <audio
-        ref={audioRef}
-        src={src}
-        preload="metadata"
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-      />
-      <Vinyl size={54} photo={photo} clipId="gift-vinyl-label-audio" />
-      <div className="gift-audiobar__meta">
-        {title && <p className="gift-audiobar__title">{title}</p>}
-        {artist && <p className="gift-audiobar__artist">{artist}</p>}
-      </div>
-      <button type="button" className="gift-audiobar__btn" onClick={toggle} aria-label={playing ? labels.pause : labels.play}>
-        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-          {playing ? (
-            <path d="M3 2 H5.5 V12 H3 Z M8.5 2 H11 V12 H8.5 Z" fill="currentColor" />
-          ) : (
-            <path d="M3.5 2 L12 7 L3.5 12 Z" fill="currentColor" />
-          )}
-        </svg>
-      </button>
-    </div>
-  );
 }
 
 function PlusMark() {
@@ -215,32 +119,8 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
   const source = (data.song_source || 'youtube') === 'mp3' ? 'mp3' : 'youtube';
   const mp3Url = source === 'mp3' ? (data.mp3_url || '').trim() : '';
   const ytId = source === 'youtube' ? youtubeId((data.youtube_url || '').trim()) : null;
-  const trim = (data.trim_song || '') === '1';
-  const ytStart = trim ? parseTime(data.yt_start || '') : undefined;
-  const ytEnd = trim ? parseTime(data.yt_end || '') : undefined;
   const fallbackSongUrl = source === 'youtube' && !ytId ? (data.youtube_url || '').trim() : '';
-  const lyrics = useMemo(
-    () => (data.lyrics || '').split('\n').map((l) => l.trim()).filter(Boolean),
-    [data.lyrics]
-  );
-  const showVinyl =
-    Boolean((data.song_title || '').trim() || (data.song_artist || '').trim()) ||
-    lyrics.length > 0 ||
-    Boolean(fallbackSongUrl);
-  const hasEmbeds = Boolean(ytId) || Boolean(mp3Url);
-
-  const ytSrc = useMemo(() => {
-    if (!ytId) return '';
-    const q = new URLSearchParams({
-      autoplay: '1',
-      playsinline: '1',
-      cc_load_policy: '1',
-      cc_lang_pref: locale,
-    });
-    if (ytStart !== undefined) q.set('start', String(ytStart));
-    if (ytEnd !== undefined) q.set('end', String(ytEnd));
-    return `https://www.youtube-nocookie.com/embed/${ytId}?${q.toString()}`;
-  }, [ytId, ytStart, ytEnd, locale]);
+  const showVinyl = Boolean(ytId) || Boolean(mp3Url) || Boolean(fallbackSongUrl);
 
   const toggleMute = () => {
     giftSound.setMuted(!muted);
@@ -469,35 +349,9 @@ export function YesNoPlayer({ data }: GiftPlayerProps) {
               onClose={() => setStage('envelope')}
             />
 
-            {hasEmbeds && (
-              <div className="gift-song">
-                {ytId && (
-                  <div className="gift-embed">
-                    <iframe
-                      src={ytSrc}
-                      title={data.song_title || 'YouTube'}
-                      allow="autoplay; accelerometer; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-                {mp3Url && (
-                  <Mp3Bar
-                    src={mp3Url}
-                    start={ytStart}
-                    end={ytEnd}
-                    title={(data.song_title || '').trim()}
-                    artist={(data.song_artist || '').trim()}
-                    photo={photo}
-                    labels={{ play: t('audioPlay'), pause: t('audioPause') }}
-                  />
-                )}
-              </div>
-            )}
             <GiftSongPlayer
               ytId={ytId}
-              audioUrl={songFile}
+              audioUrl={mp3Url}
               playUrl={ytId ? `https://youtu.be/${ytId}` : fallbackSongUrl || undefined}
               unmute={soundUnlocked}
               muted={muted}
